@@ -444,7 +444,7 @@ function drawMap(p) {
 
 // ---------- pubs ----------
 // Blips: flat round icons that face the camera and keep the same size on screen.
-const BLIP = 0.07, BLIP_SEL = 0.095, BLIP_HOME = 0.09; // fraction of the map's height
+const BLIP = 0.052, BLIP_SEL = 0.072, BLIP_HOME = 0.066; // fraction of the map's height
 // Game-map icon style: flat bright fill, thick near-black outline, solid dark symbol.
 const ICON_INK = "#1f2328";
 const ICON_FILL = { todo: "#8f96a3", done: "#5ff08f", home: "#5ef0de", way: "#ff4fa3" };
@@ -550,7 +550,7 @@ const northTex = (() => {
   return t;
 })();
 const north = new THREE.Sprite(new THREE.SpriteMaterial({ map: northTex, depthTest: false, transparent: true, sizeAttenuation: false }));
-north.scale.set(0.06, 0.06, 1);
+north.scale.set(0.045, 0.045, 1);
 north.position.set(0, 0.03, -(MAP_R + 0.02));
 north.renderOrder = 4;
 world.add(north);
@@ -743,10 +743,10 @@ function placeTag(el, pos, lift) {
 }
 function placeTags() {
   if (introOn) tagHome.classList.remove("on"); // keep the title clear during the flyover
-  else placeTag(tagHome, new THREE.Vector3(hp.x, 0.06, hp.z), 20);
+  else placeTag(tagHome, new THREE.Vector3(hp.x, 0.06, hp.z), 15);
   if (selected !== null) {
     const pg = pins[selected].g.position;
-    placeTag(tagPub, new THREE.Vector3(pg.x, 0.045, pg.z), 22);
+    placeTag(tagPub, new THREE.Vector3(pg.x, 0.045, pg.z), 17);
     tagPub.textContent = PUBS[selected][0];
   } else {
     tagPub.classList.remove("on");
