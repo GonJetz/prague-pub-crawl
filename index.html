@@ -133,6 +133,7 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .stage.fakefull .tools:not(.tools-left){right:calc(10px + env(safe-area-inset-right,0px))}
 .stage.fakefull .tools.tools-left{left:calc(10px + env(safe-area-inset-left,0px))}
 .stage.fakefull .fsbtn{bottom:calc(10px + env(safe-area-inset-bottom,0px));right:calc(10px + env(safe-area-inset-right,0px))}
+.credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
 .gtabtn.iconbtn{width:44px;height:44px;min-height:44px;padding:0;flex:none;box-shadow:none}
@@ -205,7 +206,6 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
       <span><i style="background:#5ff08f;border:2px solid #1f2328;border-radius:3px"></i>Done</span>
       <span><i style="background:#5ef0de;border:2px solid #1f2328;border-radius:3px"></i>Airbnb (Sokolská 1605)</span>
     </div>
-    <div class="legend">Map data © OpenStreetMap contributors</div>
   </div>
 
   <div class="card sheet" id="sheet" hidden></div>
@@ -220,6 +220,7 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
     </div>
   </div>
   <a class="homebtn" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get Me Home</a>
+  <p class="credit">Map data © OpenStreetMap contributors</p>
 </div>
 
 <script src="data/streets.js"></script>
