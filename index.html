@@ -140,12 +140,29 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .stars .pop{animation:starPop .8s ease-out}
 @keyframes starPop{0%{transform:scale(1)}35%{transform:scale(1.7)}100%{transform:scale(1)}}
 .stage.fakefull .stars{top:calc(14px + env(safe-area-inset-top,0px))}
+.menu{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:auto;padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(180deg,var(--sky1),var(--skym) 55%,var(--sky2))}
+.menu::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.45));pointer-events:none}
+.menu[hidden]{display:none}
+.menu-inner{position:relative;width:100%;max-width:420px;text-align:center;display:grid;gap:10px}
+.menu-title{font:400 clamp(64px,20vw,120px)/.85 var(--f-head);letter-spacing:.03em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.menu-sub{font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.menu-stats{margin:10px 0 14px;font:400 22px var(--f-head);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.menu-btns{display:grid;gap:12px}
+.mbtn{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:999px;border:2px solid #1f2328;background:#ffffff;color:#1f2328;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.mbtn-go{background:#ffd84a}
+.mbtn-home{background:linear-gradient(90deg,#ff4fa3,#ff7a1a);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.mbtn:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
+.mbtn:active{transform:translateY(1px)}
+body.menu-open{overflow:hidden}
 .credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
 .gtabtn.iconbtn{width:44px;height:44px;min-height:44px;padding:0;flex:none;box-shadow:none}
 .gtabtn.iconbtn svg{width:22px;height:22px}
-#findpanel{margin-bottom:14px}
+#findpanel{position:absolute;top:54px;left:64px;right:64px;z-index:3;padding:10px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#findpanel .results{max-height:40vh;overflow:auto}
+.stage.fakefull #findpanel{top:calc(54px + env(safe-area-inset-top,0px))}
+.tools button[aria-expanded="true"]{background:#5ef0de}
 .findbox .lbl{color:var(--muted);font-size:13px}
 .findbox input[type=search]{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 14px;width:100%}
 .results{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -180,15 +197,23 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 <body>
 <div class="app">
 
+  <div class="menu" id="menu">
+    <div class="menu-inner">
+      <div class="menu-title">Piwo City</div>
+      <div class="menu-sub">Prague · Stag weekend</div>
+      <div class="menu-stats" id="menustats"></div>
+      <div class="menu-btns">
+        <button class="mbtn mbtn-go" id="menustart">Start crawl</button>
+        <button class="mbtn" id="menufind">Find a pub</button>
+        <a class="mbtn mbtn-home" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get me home</a>
+      </div>
+    </div>
+  </div>
+
 
   <div class="card">
     <div class="progressrow">
-      <button class="gtabtn iconbtn" id="findbtn" aria-label="Find a pub" title="Find a pub" aria-expanded="false" aria-controls="findpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
       <div class="pint"><div class="beer" id="beer"></div><div class="pintlabel" aria-live="polite"><span id="count">0 / 78</span> pubs done</div></div>
-    </div>
-    <div class="findbox" id="findpanel" hidden>
-      <input type="search" id="find" placeholder="Find a pub: type a name or street" autocomplete="off" aria-label="Find a pub">
-      <ul id="results" class="results"></ul>
     </div>
     <div class="stage" id="stage">
       <div class="intro" id="intro" role="button" aria-label="Skip intro">
@@ -199,6 +224,12 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
       <div class="stars" id="stars" role="img" aria-label="Drunk level 0 of 5"></div>
       <div class="tools tools-left">
         <button id="theme" class="themebtn" aria-label="Switch theme" title="Switch theme"></button>
+        <button id="findbtn" aria-label="Find a pub" title="Find a pub" aria-expanded="false" aria-controls="findpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+        <button id="menubtn" aria-label="Home screen" title="Home screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+      <div class="findbox" id="findpanel" hidden>
+        <input type="search" id="find" placeholder="Find a pub: name or street" autocomplete="off" aria-label="Find a pub">
+        <ul id="results" class="results"></ul>
       </div>
       <div class="tools">
         <button id="zin" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -857,6 +888,7 @@ function endIntro() {
 }
 window.runIntro = function () {
   if (!introOn) return false;
+  if (menuOpen) return true; // hold the flyover until the home screen is closed
   const now = performance.now();
   if (introStart === null) { introStart = now; beacon.visible = false; }
   const t = Math.min(1, (now - introStart) / INTRO_MS);
@@ -873,6 +905,31 @@ window.runIntro = function () {
 };
 introEl.addEventListener("click", endIntro);
 if (!introOn) introEl.classList.add("out");
+
+// ---------- home screen (main menu) ----------
+let menuOpen = true;
+const menuEl = document.getElementById("menu");
+function renderMenuStats() {
+  const n = Object.keys(state.done).length;
+  const lvl = drunkLevel(n);
+  document.getElementById("menustats").textContent =
+    `${n} / ${PUBS.length} pubs · ${"★".repeat(lvl)}${"☆".repeat(5 - lvl)}`;
+}
+function openMenu() {
+  menuOpen = true;
+  renderMenuStats();
+  menuEl.hidden = false;
+  document.body.classList.add("menu-open");
+}
+function closeMenu() {
+  menuOpen = false;
+  menuEl.hidden = true;
+  document.body.classList.remove("menu-open");
+}
+document.getElementById("menustart").addEventListener("click", closeMenu);
+document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); setFind(true); });
+document.getElementById("menubtn").addEventListener("click", openMenu);
+openMenu();
 
 // ---------- light / dark (remembered on this phone) ----------
 const THEME_KEY = "pubtracker-theme";
