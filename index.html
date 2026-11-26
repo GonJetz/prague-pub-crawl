@@ -108,12 +108,25 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .themebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .homebtn{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:999px;background:linear-gradient(90deg,#ff4fa3,#ff7a1a);color:#fff;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;text-shadow:0 2px 0 rgba(0,0,0,.25);box-shadow:0 8px 24px rgba(255,79,163,.35);margin-top:4px}
 .homebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.intro{position:absolute;inset:0;z-index:3;display:grid;place-content:center;text-align:center;cursor:pointer;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 30%,rgba(0,0,0,.35));transition:opacity .8s}
+.intro{position:absolute;inset:0;z-index:3;display:grid;place-content:center;text-align:center;cursor:pointer;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.3));transition:opacity .8s}
+/* letterbox bars */
+.intro::before,.intro::after{content:"";position:absolute;left:0;right:0;height:11%;background:#000;z-index:1;transition:transform .8s}
+.intro::before{top:0}
+.intro::after{bottom:0}
 .intro.out{opacity:0;pointer-events:none}
-.intro-title{font:400 clamp(48px,12vw,104px)/.9 var(--f-head);letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35));animation:introIn 1.2s cubic-bezier(.2,.8,.2,1) both}
-.intro-sub{margin-top:10px;font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);animation:introIn 1.2s .3s cubic-bezier(.2,.8,.2,1) both}
-.intro-skip{position:absolute;bottom:14px;left:0;right:0;font:500 11px var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.85);text-shadow:0 1px 4px rgba(0,0,0,.6)}
-@keyframes introIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.intro.out::before{transform:translateY(-100%)}
+.intro.out::after{transform:translateY(100%)}
+/* lower-third captions */
+.intro-cap{position:absolute;left:6%;right:6%;bottom:calc(11% + 18px);text-align:left;opacity:0;transform:translateX(-24px);transition:opacity .5s,transform .6s cubic-bezier(.2,.8,.2,1)}
+.intro-cap.show{opacity:1;transform:none}
+.intro-cap-main{font:400 clamp(36px,9vw,72px)/.95 var(--f-head);letter-spacing:.04em;text-transform:uppercase;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.45)}
+.intro-cap-sub{margin-top:6px;font:600 12px var(--f-body);letter-spacing:.25em;text-transform:uppercase;color:#ffd84a;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+/* closing title */
+.intro-logo{opacity:0;transform:scale(1.35);transition:opacity .6s,transform .9s cubic-bezier(.2,.8,.2,1)}
+.intro-logo.show{opacity:1;transform:none}
+.intro-title{font:400 clamp(48px,12vw,104px)/.9 var(--f-head);letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.intro-sub{margin-top:10px;font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.intro-skip{position:absolute;bottom:3%;left:0;right:0;z-index:2;font:500 11px var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.85)}
 .gtabtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:0 18px;border:2px solid #1f2328;border-radius:999px;background:#ffd84a;color:#1f2328;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 24px rgba(255,216,74,.35);transition:transform .08s}
 .gtabtn svg{width:24px;height:24px;fill:none;stroke:#1f2328;stroke-width:2.5;stroke-linecap:round}
 .gtabtn:active{transform:translateY(1px)}
@@ -217,8 +230,11 @@ body.menu-open{overflow:hidden}
     </div>
     <div class="stage" id="stage">
       <div class="intro" id="intro" role="button" aria-label="Skip intro">
-        <div class="intro-title">Piwo City</div>
-        <div class="intro-sub">Prague · Stag weekend</div>
+        <div class="intro-cap" id="introcap"><div class="intro-cap-main" id="introcapmain"></div><div class="intro-cap-sub" id="introcapsub"></div></div>
+        <div class="intro-logo" id="intrologo">
+          <div class="intro-title">Piwo City</div>
+          <div class="intro-sub">Prague · Stag weekend</div>
+        </div>
         <div class="intro-skip">Tap to skip</div>
       </div>
       <div class="stars" id="stars" role="img" aria-label="Drunk level 0 of 5"></div>
@@ -749,13 +765,18 @@ function setFull(on) {
   fullBtn.title = label;
   fullBtn.setAttribute("aria-label", label);
 }
-fullBtn.onclick = () => {
-  if (document.fullscreenElement) { document.exitFullscreen(); return; }
-  if (fakeFull) { setFull(false); return; }
+// Must be called straight from a tap: browsers only allow full screen in response to one.
+function enterFull() {
+  if (document.fullscreenElement || fakeFull) return;
   const req = (document.fullscreenEnabled && stage.requestFullscreen)
     ? stage.requestFullscreen()
     : Promise.reject(new Error("no native full screen"));
   req.then(() => setFull(true)).catch(() => setFull(true));
+}
+fullBtn.onclick = () => {
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  if (fakeFull) { setFull(false); return; }
+  enterFull();
 };
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement && fakeFull) setFull(false);
@@ -870,17 +891,51 @@ function showSplash(pubName) {
 document.getElementById("splash").addEventListener("click", hideSplash);
 
 // ---------- start ----------
-// ---------- intro flyover: a low sweep around the city that settles into the normal view ----------
-const INTRO_MS = 6500;
+// ---------- intro: a short cinematic flyover with captions, ending on the title ----------
 const introEl = document.getElementById("intro");
+const introCap = document.getElementById("introcap");
+const introCapMain = document.getElementById("introcapmain");
+const introCapSub = document.getElementById("introcapsub");
+const introLogo = document.getElementById("intrologo");
 let introStart = null;
 let introOn = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const lerp = (a, b, t) => a + (b - a) * t;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+// Camera keyframes (seconds, camera position, look-at point). 1 unit = 1 km.
+const SHOTS = [
+  { t: 0,    pos: V(-1.55, 0.22, 1.55),               tgt: V(-1.05, 0.03, 0.20) },  // low on the Vltava, from the south
+  { t: 3.4,  pos: V(-1.30, 0.30, -0.55),              tgt: V(-0.95, 0.03, -1.25) }, // skim north up the river
+  { t: 5.0,  pos: V(-0.55, 0.55, 0.75),               tgt: V(hp.x, 0, hp.z) },      // turn towards the Airbnb
+  { t: 8.0,  pos: V(hp.x + 0.38, 0.32, hp.z + 0.42),  tgt: V(hp.x, 0.02, hp.z) },   // close orbit of the safehouse
+  { t: 9.6,  pos: V(hp.x - 0.30, 0.40, hp.z + 0.35),  tgt: V(hp.x, 0.02, hp.z) },
+  { t: 12.2, pos: V(1.25, 1.35, 1.35),                tgt: V(0.15, 0, -0.15) },     // rise over the pubs
+  { t: 15.0, pos: DEFAULT_POS.clone(),                tgt: V(0, 0, 0) }             // settle into the map view
+];
+const CAPTIONS = [
+  { from: 0.6,  to: 3.2,  main: "Prague",        sub: "Czech Republic" },
+  { from: 5.4,  to: 8.6,  main: "The safehouse", sub: "Sokolská 1605" },
+  { from: 8.9,  to: 10.7, main: "11 Men · 1 Gimp", sub: "One stag do" },
+  { from: 11.0, to: 12.7, main: "78 pubs",       sub: "One weekend" }
+];
+const LOGO_FROM = 12.8, INTRO_END = 16.5;
+const camPath = new THREE.CatmullRomCurve3(SHOTS.map(s => s.pos));
+const tgtPath = new THREE.CatmullRomCurve3(SHOTS.map(s => s.tgt));
+let capShown = null;
+
+// Map seconds to a point along the path, passing each keyframe at its time.
+function introU(sec) {
+  const last = SHOTS.length - 1;
+  if (sec >= SHOTS[last].t) return 1;
+  let i = 0;
+  while (sec >= SHOTS[i + 1].t) i++;
+  let l = (sec - SHOTS[i].t) / (SHOTS[i + 1].t - SHOTS[i].t);
+  if (i === 0) l = 0.5 * l + 0.5 * l * l * (3 - 2 * l); // gentle start
+  if (i === last - 1) l = 1 - Math.pow(1 - l, 2);       // soft landing
+  return (i + l) / last;
+}
 function endIntro() {
   if (!introOn) return;
   introOn = false;
-  beacon.visible = true;
   camera.position.copy(DEFAULT_POS);
   controls.target.set(0, 0, 0);
   controls.update();
@@ -888,19 +943,22 @@ function endIntro() {
 }
 window.runIntro = function () {
   if (!introOn) return false;
-  if (menuOpen) return true; // hold the flyover until the home screen is closed
+  if (menuOpen) return true; // hold the intro until the home screen is closed
   const now = performance.now();
-  if (introStart === null) { introStart = now; beacon.visible = false; }
-  const t = Math.min(1, (now - introStart) / INTRO_MS);
-  const e = easeInOut(t);
-  const ang = lerp(-2.4, 0, e);           // swing round from the far side of the river
-  const r = lerp(2.4, DEFAULT_POS.z, e);  // pull back
-  const h = lerp(0.9, DEFAULT_POS.y, e);  // and climb
-  const tx = lerp(0.4, 0, e), tz = lerp(-0.4, 0, e);
-  controls.target.set(tx, 0, tz);
-  camera.position.set(tx + Math.sin(ang) * r, h, tz + Math.cos(ang) * r);
+  if (introStart === null) introStart = now;
+  const sec = (now - introStart) / 1000;
+  const u = introU(sec);
+  camera.position.copy(camPath.getPoint(u));
+  controls.target.copy(tgtPath.getPoint(u));
   camera.lookAt(controls.target);
-  if (t >= 1) endIntro();
+  const cap = CAPTIONS.find(c => sec >= c.from && sec < c.to) || null;
+  if (cap !== capShown) {
+    if (cap) { introCapMain.textContent = cap.main; introCapSub.textContent = cap.sub; }
+    introCap.classList.toggle("show", !!cap);
+    capShown = cap;
+  }
+  introLogo.classList.toggle("show", sec >= LOGO_FROM);
+  if (sec >= INTRO_END) endIntro();
   return true;
 };
 introEl.addEventListener("click", endIntro);
@@ -926,7 +984,10 @@ function closeMenu() {
   menuEl.hidden = true;
   document.body.classList.remove("menu-open");
 }
-document.getElementById("menustart").addEventListener("click", closeMenu);
+document.getElementById("menustart").addEventListener("click", () => {
+  closeMenu();
+  if (introOn) enterFull(); // play the intro full screen
+});
 document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); setFind(true); });
 document.getElementById("menubtn").addEventListener("click", openMenu);
 openMenu();
