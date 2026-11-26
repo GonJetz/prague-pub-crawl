@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Prague Pub Crawl</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="theme-color" content="#1f2328">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piwo City">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
@@ -63,7 +71,7 @@ h2{font:400 24px/1.1 var(--f-head);letter-spacing:.02em;text-transform:uppercase
 .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:var(--glass);padding:4px 8px;border-radius:8px;z-index:2;pointer-events:none}
 .tag{position:absolute;transform:translate(-50%,-115%);pointer-events:none;white-space:nowrap;font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:8px;background:var(--ink);color:var(--bg);opacity:0;transition:opacity .15s;z-index:1}
 .tag.on{opacity:1}
-.tag.hot{background:var(--sun);color:#1a1000}
+.tag.hot{background:#5ef0de;color:#1f2328;box-shadow:0 0 0 2px #1f2328}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin-top:10px}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .namerow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -106,7 +114,24 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .intro-sub{margin-top:10px;font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);animation:introIn 1.2s .3s cubic-bezier(.2,.8,.2,1) both}
 .intro-skip{position:absolute;bottom:14px;left:0;right:0;font:500 11px var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.85);text-shadow:0 1px 4px rgba(0,0,0,.6)}
 @keyframes introIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.gtabtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:0 18px;border:2px solid #1f2328;border-radius:999px;background:#ffd84a;color:#1f2328;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 24px rgba(255,216,74,.35);transition:transform .08s}
+.gtabtn svg{width:24px;height:24px;fill:none;stroke:#1f2328;stroke-width:2.5;stroke-linecap:round}
+.gtabtn:active{transform:translateY(1px)}
+.gtabtn[aria-expanded="true"]{background:#5ef0de}
+.gtabtn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(0,0,0,.35);cursor:pointer}
+.splash[hidden]{display:none}
+.splash-band{width:100%;padding:24px 16px;text-align:center;background:linear-gradient(90deg,transparent,rgba(10,6,20,.88) 18%,rgba(10,6,20,.88) 82%,transparent);animation:bandIn .5s cubic-bezier(.2,.8,.2,1) both}
+.splash-title{font:400 clamp(46px,12vw,92px)/.95 var(--f-head);letter-spacing:.04em;text-transform:uppercase;color:#ffd84a;text-shadow:0 3px 0 #1f2328;animation:titleIn .6s .1s cubic-bezier(.2,.8,.2,1) both}
+.splash-sub{margin-top:10px;font:600 14px var(--f-body);letter-spacing:.18em;text-transform:uppercase;color:#fff;animation:titleIn .6s .25s cubic-bezier(.2,.8,.2,1) both}
+@keyframes bandIn{from{transform:scaleX(.15);opacity:0}to{transform:none;opacity:1}}
+@keyframes titleIn{from{transform:scale(1.35);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.splash-band,.splash-title,.splash-sub{animation:none}}
 .findbox{display:grid;gap:8px}
+.findbox[hidden]{display:none}
+.gtabtn.iconbtn{width:44px;height:44px;min-height:44px;padding:0;flex:none;box-shadow:none}
+.gtabtn.iconbtn svg{width:22px;height:22px}
+#findpanel{margin-bottom:14px}
 .findbox .lbl{color:var(--muted);font-size:13px}
 .findbox input[type=search]{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 14px;width:100%}
 .results{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -140,7 +165,12 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   <div class="card">
     <div class="progressrow">
+      <button class="gtabtn iconbtn" id="findbtn" aria-label="Find a pub" title="Find a pub" aria-expanded="false" aria-controls="findpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
       <div class="pint"><div class="beer" id="beer"></div><div class="pintlabel" aria-live="polite"><span id="count">0 / 78</span> pubs done</div></div>
+    </div>
+    <div class="findbox" id="findpanel" hidden>
+      <input type="search" id="find" placeholder="Find a pub: type a name or street" autocomplete="off" aria-label="Find a pub">
+      <ul id="results" class="results"></ul>
     </div>
     <div class="stage" id="stage">
       <div class="intro" id="intro" role="button" aria-label="Skip intro">
@@ -162,24 +192,24 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <div class="tag" id="tag-pub"></div>
     </div>
     <div class="legend">
-      <span><i style="background:#4a5263"></i>Not done</span>
-      <span><i style="background:var(--done)"></i>Done</span>
-      <span><i style="background:var(--sun)"></i>Airbnb (Sokolská 1605)</span>
+      <span><i style="background:#8f96a3;border:2px solid #1f2328;border-radius:3px"></i>Not done</span>
+      <span><i style="background:#5ff08f;border:2px solid #1f2328;border-radius:3px"></i>Done</span>
+      <span><i style="background:#5ef0de;border:2px solid #1f2328;border-radius:3px"></i>Airbnb (Sokolská 1605)</span>
     </div>
     <div class="legend">Map data © OpenStreetMap contributors</div>
   </div>
 
   <div class="card sheet" id="sheet" hidden></div>
 
-  <div class="card" id="weather" style="color:var(--muted)"><span id="wxtext">Loading weather…</span></div>
 
-  <div class="card findbox">
-    <label for="find" class="lbl">Find a pub</label>
-    <input type="search" id="find" placeholder="Type a pub name or street" autocomplete="off">
-    <ul id="results" class="results"></ul>
+
+
+  <div class="splash" id="splash" hidden aria-live="assertive">
+    <div class="splash-band">
+      <div class="splash-title" id="splashtitle">Pub complete</div>
+      <div class="splash-sub" id="splashsub"></div>
+    </div>
   </div>
-
-
   <a class="homebtn" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get Me Home</a>
 </div>
 
@@ -395,15 +425,63 @@ function drawMap(p) {
 }
 
 // ---------- pubs ----------
-const stemGeo = new THREE.CylinderGeometry(0.0025, 0.0025, 0.045, 8);
-const headGeo = new THREE.SphereGeometry(0.012, 16, 12);
+// Blips: flat round icons that face the camera and keep the same size on screen.
+const BLIP = 0.07, BLIP_SEL = 0.095, BLIP_HOME = 0.09; // fraction of the map's height
+// Game-map icon style: flat bright fill, thick near-black outline, solid dark symbol.
+const ICON_INK = "#1f2328";
+const ICON_FILL = { todo: "#8f96a3", done: "#5ff08f", home: "#5ef0de", way: "#ff4fa3" };
+function blipTexture(kind) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d");
+  const fill = ICON_FILL[kind];
+  g.lineJoin = "round"; g.lineCap = "round";
+  g.strokeStyle = ICON_INK; g.lineWidth = 9;
+  if (kind === "way") {
+    // waypoint: teardrop pin with a dark dot
+    g.beginPath();
+    g.moveTo(64, 122);
+    g.bezierCurveTo(40, 96, 22, 78, 22, 52);
+    g.arc(64, 52, 42, Math.PI, 0);
+    g.bezierCurveTo(106, 78, 88, 96, 64, 122);
+    g.closePath();
+    g.fillStyle = fill; g.fill(); g.stroke();
+    g.beginPath(); g.arc(64, 52, 15, 0, Math.PI * 2);
+    g.fillStyle = ICON_INK; g.fill();
+  } else {
+    // rounded-square badge
+    g.beginPath(); g.roundRect(10, 10, 108, 108, 24);
+    g.fillStyle = fill; g.fill(); g.stroke();
+    g.fillStyle = ICON_INK;
+    if (kind === "home") {
+      // house with a door cut out
+      g.beginPath();
+      g.moveTo(64, 28); g.lineTo(100, 60); g.lineTo(90, 60); g.lineTo(90, 96);
+      g.lineTo(38, 96); g.lineTo(38, 60); g.lineTo(28, 60); g.closePath(); g.fill();
+      g.fillStyle = fill; g.beginPath(); g.roundRect(56, 72, 16, 24, 3); g.fill();
+    } else {
+      // beer glass with a handle and a foam head
+      g.beginPath(); g.roundRect(40, 52, 36, 44, 5); g.fill();
+      g.lineWidth = 8;
+      g.beginPath(); g.arc(78, 72, 12, -Math.PI / 2, Math.PI / 2); g.stroke();
+      for (const [x, y, r] of [[46, 50, 9], [58, 43, 10], [71, 49, 9]]) {
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 const pins = PUBS.map((p, i) => {
   const g = new THREE.Group();
-  const m = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5, depthTest: false });
-  const stem = new THREE.Mesh(stemGeo, m); stem.position.y = 0.0225; stem.renderOrder = 2;
-  const head = new THREE.Mesh(headGeo, m); head.position.y = 0.047; head.renderOrder = 2;
+  const m = new THREE.SpriteMaterial({ depthTest: false, transparent: true, sizeAttenuation: false });
+  const head = new THREE.Sprite(m);
+  head.scale.set(BLIP, BLIP, 1);
+  head.position.y = 0.045;
+  head.renderOrder = 3;
   head.userData.i = i;
-  g.add(stem, head);
+  g.add(head);
   g.position.copy(toWorld(p[2], p[3]));
   world.add(g);
   return { g, m, head };
@@ -429,8 +507,47 @@ top.position.y = 0.22;
 const homeRingMat = new THREE.MeshBasicMaterial({ color: 0xd96f00, transparent: true, opacity: 0.8, depthTest: false });
 const homeRing = new THREE.Mesh(new THREE.RingGeometry(0.04, 0.05, 48).rotateX(-Math.PI / 2), homeRingMat);
 homeRing.position.y = 0.004;
-beacon.add(pole, top, homeRing);
+const homeBlipMat = new THREE.SpriteMaterial({ depthTest: false, transparent: true, sizeAttenuation: false });
+const homeBlip = new THREE.Sprite(homeBlipMat);
+homeBlip.scale.set(BLIP_HOME, BLIP_HOME, 1);
+homeBlip.position.y = 0.06;
+homeBlip.renderOrder = 4;
+beacon.add(homeBlip, homeRing);
 world.add(beacon);
+
+// North marker: an "N" badge on the northern rim of the round map, turning with it.
+const northTex = (() => {
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d");
+  g.beginPath(); g.arc(64, 64, 52, 0, Math.PI * 2);
+  g.fillStyle = "#ffffff"; g.fill();
+  g.lineWidth = 9; g.strokeStyle = ICON_INK; g.stroke();
+  g.fillStyle = ICON_INK;
+  g.font = "bold 64px system-ui, Arial, sans-serif";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText("N", 64, 68);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+const north = new THREE.Sprite(new THREE.SpriteMaterial({ map: northTex, depthTest: false, transparent: true, sizeAttenuation: false }));
+north.scale.set(0.06, 0.06, 1);
+north.position.set(0, 0.03, -(MAP_R + 0.02));
+north.renderOrder = 4;
+world.add(north);
+
+// Blip icons are redrawn whenever the palette changes.
+let texTodo = null, texDone = null, texHome = null, texWay = null;
+function makeBlips() {
+  [texTodo, texDone, texHome, texWay].forEach(t => t && t.dispose());
+  texTodo = blipTexture("todo");
+  texDone = blipTexture("done");
+  texHome = blipTexture("home");
+  texWay = blipTexture("way");
+  homeBlipMat.map = texHome;
+  homeBlipMat.needsUpdate = true;
+}
 
 // Colour everything from the active palette and the saved progress.
 function applyPalette() {
@@ -444,16 +561,19 @@ function applyPalette() {
   buildingMat.emissive.set(p.bldGlow);
   poleMat.color.set(p.home); topMat.color.set(p.home); homeRingMat.color.set(p.home);
   ringMat.color.set(p.ring);
+  makeBlips(p);
   refreshPins();
 }
 function refreshPins() {
   const p = pal();
   pins.forEach((pin, i) => {
-    pin.m.color.set(state.done[i] ? p.done : p.todo);
-    pin.m.emissive.copy(pin.m.color);
-    pin.m.emissiveIntensity = 0.35;
-    const s = i === selected ? 1.35 : 1;
-    pin.g.scale.set(s, s, s);
+    // The selected pub becomes a waypoint pin whose tip sits on the spot.
+    const sel = i === selected;
+    const tex = sel ? texWay : (state.done[i] ? texDone : texTodo);
+    if (pin.m.map !== tex) { pin.m.map = tex; pin.m.needsUpdate = true; }
+    pin.head.center.set(0.5, sel ? 0.02 : 0.5);
+    const s = sel ? BLIP_SEL : BLIP;
+    pin.head.scale.set(s, s, 1);
   });
   const doneN = Object.keys(state.done).length;
   document.getElementById("count").textContent = `${doneN} / ${PUBS.length}`;
@@ -501,12 +621,21 @@ function flyTo(target) {
 // ---------- find a pub ----------
 const findInput = document.getElementById("find");
 const results = document.getElementById("results");
+const findBtn = document.getElementById("findbtn");
+const findPanel = document.getElementById("findpanel");
+function setFind(open) {
+  findPanel.hidden = !open;
+  findBtn.setAttribute("aria-expanded", String(open));
+  if (open) findInput.focus();
+}
+findBtn.addEventListener("click", () => setFind(findPanel.hidden));
 function goToPub(i) {
   select(i, false);
   const pg = pins[i].g.position;
   flyTo(new THREE.Vector3(pg.x, 0, pg.z));
   findInput.value = "";
   results.replaceChildren();
+  setFind(false);
   stage.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 findInput.addEventListener("input", () => {
@@ -571,15 +700,15 @@ function placeTag(el, pos, lift) {
   if (v.z > 1) { el.classList.remove("on"); return; }
   const w = stage.clientWidth, h = stage.clientHeight;
   el.style.left = ((v.x + 1) / 2 * w) + "px";
-  el.style.top = ((1 - v.y) / 2 * h) + "px";
+  el.style.top = ((1 - v.y) / 2 * h - (lift || 0)) + "px";
   el.classList.add("on");
 }
 function placeTags() {
   if (introOn) tagHome.classList.remove("on"); // keep the title clear during the flyover
-  else placeTag(tagHome, new THREE.Vector3(hp.x, 0.27, hp.z), 0);
+  else placeTag(tagHome, new THREE.Vector3(hp.x, 0.06, hp.z), 20);
   if (selected !== null) {
     const pg = pins[selected].g.position;
-    placeTag(tagPub, new THREE.Vector3(pg.x, 0.09, pg.z), 0);
+    placeTag(tagPub, new THREE.Vector3(pg.x, 0.045, pg.z), 22);
     tagPub.textContent = PUBS[selected][0];
   } else {
     tagPub.classList.remove("on");
@@ -647,7 +776,27 @@ function markDone() {
   save();
   refreshPins();
   renderSheet();
+  showSplash(PUBS[selected][0]);
 }
+
+// "Pub complete" splash: a band across the screen that clears itself after a moment.
+let splashTimer = null;
+function hideSplash() {
+  clearTimeout(splashTimer);
+  document.getElementById("splash").hidden = true;
+}
+function showSplash(pubName) {
+  const n = Object.keys(state.done).length;
+  const all = n >= PUBS.length;
+  document.getElementById("splashtitle").textContent = all ? "Crawl complete" : "Pub complete";
+  document.getElementById("splashsub").textContent = `${pubName} · +1 pint · ${n} / ${PUBS.length}`;
+  const s = document.getElementById("splash");
+  // re-trigger the animation when two pubs are completed close together
+  s.hidden = true; void s.offsetWidth; s.hidden = false;
+  clearTimeout(splashTimer);
+  splashTimer = setTimeout(hideSplash, all ? 5000 : 2600);
+}
+document.getElementById("splash").addEventListener("click", hideSplash);
 
 // ---------- start ----------
 // ---------- intro flyover: a low sweep around the city that settles into the normal view ----------
@@ -720,26 +869,6 @@ applyPalette();
 renderSheet();
 tick();
 
-// ---------- weather (Open-Meteo, no API key) ----------
-const WX = { 0: "clear", 1: "mostly clear", 2: "partly cloudy", 3: "overcast", 45: "fog", 48: "fog",
-  51: "light drizzle", 53: "drizzle", 55: "heavy drizzle", 61: "light rain", 63: "rain", 65: "heavy rain",
-  71: "light snow", 73: "snow", 75: "heavy snow", 80: "rain showers", 81: "rain showers", 82: "heavy showers",
-  95: "thunderstorm", 96: "thunderstorm", 99: "thunderstorm" };
-async function loadWeather() {
-  const out = document.getElementById("wxtext");
-  try {
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=50.08&longitude=14.43" +
-      "&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe%2FPrague";
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(r.status);
-    const c = (await r.json()).current;
-    const sky = WX[c.weather_code] || "mixed";
-    out.textContent = `Prague now: ${Math.round(c.temperature_2m)}°C, ${sky}, wind ${Math.round(c.wind_speed_10m)} km/h`;
-    applyWeather("snow");
-  } catch (e) {
-    out.textContent = "Weather unavailable right now";
-  }
-}
 // ---------- weather effects: fog, light, rain and snow over the city ----------
 const WX_MODES = {
   clear:  { sun: 0.7,  fog: null,      rain: false, snow: false },
@@ -748,13 +877,6 @@ const WX_MODES = {
   snow:   { sun: 0.35, fog: [5, 12],   rain: false, snow: true  },
   fog:    { sun: 0.2,  fog: [1.5, 6],  rain: false, snow: false }
 };
-function modeFromCode(c) {
-  if (c === 45 || c === 48) return "fog";
-  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) return "rain";
-  if (c >= 71 && c <= 77) return "snow";
-  if (c >= 2) return "cloudy";
-  return "clear";
-}
 
 const rainCount = 1400;
 const rainPos = new Float32Array(rainCount * 6);
@@ -815,9 +937,6 @@ function applyWeather(mode) {
 
 // The map is always snowing.
 applyWeather("snow");
-
-loadWeather();
-setInterval(loadWeather, 30 * 60 * 1000);
 </script>
 </body>
 </html>
