@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Prague Pub Crawl</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<style>
+:root{
+  --bg:#eceff5; --panel:#ffffff; --panel2:#f3f5fa; --ink:#0f1a2c; --muted:#5a677e; --line:#d6dce9;
+  --sun:#d96f00; --accent:#2756d4; --done:#14833b; --glass:rgba(255,255,255,.9);
+  --shadow:0 1px 2px rgba(15,26,44,.06),0 8px 24px rgba(15,26,44,.06);
+  --f-head:"Space Grotesk",system-ui,sans-serif; --f-body:Inter,system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#080d18; --panel:#101828; --panel2:#16223a; --ink:#e9eef8; --muted:#8e9db8; --line:#233250;
+    --sun:#ffb23e; --accent:#8aacff; --done:#58d68d; --glass:rgba(16,24,40,.9);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#080d18; --panel:#101828; --panel2:#16223a; --ink:#e9eef8; --muted:#8e9db8; --line:#233250;
+  --sun:#ffb23e; --accent:#8aacff; --done:#58d68d; --glass:rgba(16,24,40,.9);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body);
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px}
+.app{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font:700 clamp(28px,5vw,40px)/1.05 var(--f-head);letter-spacing:-.02em;margin:0}
+h2{font:600 18px/1.3 var(--f-head);margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.eyebrow{font:500 11px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.tile{background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;min-width:150px}
+.tile .k{font-size:11.5px;opacity:.7;letter-spacing:.04em}
+.tile .v{font:600 26px/1.1 var(--f-head);font-variant-numeric:tabular-nums}
+.stage{position:relative;height:clamp(380px,64vh,580px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg);touch-action:none}
+.stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.tools{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.tools button{font:600 14px/1 var(--f-body);width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.tools button.wide{width:auto;font-size:12px;padding:0 10px}
+.tools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:var(--glass);padding:4px 8px;border-radius:8px;z-index:2;pointer-events:none}
+.tag{position:absolute;transform:translate(-50%,-115%);pointer-events:none;white-space:nowrap;font:600 12px/1 var(--f-body);padding:6px 9px;border-radius:8px;background:var(--ink);color:var(--bg);opacity:0;transition:opacity .15s;z-index:1}
+.tag.on{opacity:1}
+.tag.hot{background:var(--sun);color:#1a1000}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.namerow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.namerow label{color:var(--muted)}
+input[type=text]{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-width:0;flex:1 1 180px}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sheet{display:grid;gap:10px}
+.sheet[hidden]{display:none}
+.sheet .addr{color:var(--muted)}
+.sheet .status{color:var(--muted);font-size:13.5px}
+.sheet img{width:100%;height:auto;border-radius:12px;display:block}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btn{position:relative;display:inline-block;font:600 14px/1.2 var(--f-body);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:10px 18px;cursor:pointer;overflow:hidden}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:focus-within,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.btn.dim{opacity:.5;cursor:default}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="card head">
+    <div>
+      <div class="eyebrow">Stag · Prague</div>
+      <h1>Prague Pub Crawl</h1>
+      <p class="sub">Drag to turn, pinch or scroll to zoom. Tap a pin, take a photo with your drink, and the pin turns green.</p>
+    </div>
+    <div class="tile" aria-live="polite">
+      <div class="k">Pubs done</div>
+      <div class="v" id="count">0 / 78</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="stage" id="stage">
+      <div class="tools">
+        <button id="zin" aria-label="Zoom in">+</button>
+        <button id="zout" aria-label="Zoom out">−</button>
+        <button id="reset" class="wide" aria-label="Reset view">Reset</button>
+        <button id="home" class="wide" aria-label="Centre on the Airbnb">Airbnb</button>
+      </div>
+      <div class="hint">Drag to turn · pinch to zoom</div>
+      <div class="tag hot" id="tag-home">Airbnb · Sokolská 1605</div>
+      <div class="tag" id="tag-pub"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#8a93a6"></i>Not done</span>
+      <span><i style="background:var(--done)"></i>Done</span>
+      <span><i style="background:var(--sun)"></i>Airbnb (Sokolská 1605)</span>
+    </div>
+    <div class="legend">Map data © OpenStreetMap contributors</div>
+  </div>
+
+  <div class="card sheet" id="sheet" hidden></div>
+
+  <div class="card namerow">
+    <label for="name">Your name</label>
+    <input type="text" id="name" placeholder="e.g. Dave" autocomplete="off">
+  </div>
+
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ---------- data ----------
+// [name, street, lat, lon] for pubs within about 1.5 km of the Airbnb (OpenStreetMap)
+const PUBS = [
+["Balbínova poetická hospůdka","Balbínova 323/6",50.0769163,14.4339018],
+["Bar 23","Křemencova 23",50.0798754,14.4163236],
+["Bar Klokan","Slovanská 2205/2",50.0725556,14.4481590],
+["Belzepub","U Rajské zahrady 809/14",50.0824881,14.4443030],
+["Bohemia Goose","",50.0795894,14.4230474],
+["Branická Formanka","Vodičkova 696/26",50.0802508,14.4239113],
+["Buddha Bar","Jakubská 8",50.0882457,14.4260580],
+["Cafe Alternatif","Mezibranská",50.0790637,14.4296597],
+["Dno Pytle","",50.0771092,14.4429838],
+["Dungie's","Žitná 573/38",50.0771034,14.4279456],
+["Fat Cat","",50.0860615,14.4186877],
+["Fat Cat Beerhouse","",50.0859669,14.4188964],
+["Freemasonic Club","",50.0885940,14.4236368],
+["Galerka","Bělehradská 44",50.0683671,14.4332414],
+["Golden Kettle","",50.0864426,14.4207911],
+["Gossip Bar","Štěpánská 538/11",50.0766381,14.4242967],
+["Hospoda Pohoda","Bělehradská 238/9",50.0654648,14.4394324],
+["Hostinec U Jendy","",50.0698763,14.4184866],
+["Hostinec u Rotundy","Karoliny Světlé 1035/17",50.0825609,14.4145029],
+["House Party","",50.0877544,14.4236129],
+["Illegal Beer","Ve Smečkách 16",50.0782471,14.4268485],
+["Jazz Republic","Jilská 527/2",50.0841009,14.4185232],
+["Ježkovy voči","",50.0778266,14.4266967],
+["Jelínkova plzeňská pivnice","Charvátova 33/1",50.0816698,14.4220469],
+["Kavárna Na Šumavě","Šumavská 991/31",50.0757630,14.4437591],
+["Klub Buben","Myslíkova 6",50.0772114,14.4154674],
+["Kontakt","",50.0785448,14.4223300],
+["Krčma U Parašutistů","Resslova 1939/7",50.0758789,14.4163956],
+["Londoners","",50.0777265,14.4247265],
+["Magister Kelley","Rejskova 3",50.0669080,14.4339894],
+["McCarthy's","",50.0842817,14.4215775],
+["Merlin","Bělehradská 68a",50.0708288,14.4333647],
+["Milá tchýně","Na Zbořenci 9",50.0776503,14.4178348],
+["Morava","",50.0828370,14.4475319],
+["Moving World","",50.0806452,14.4222573],
+["Mrtvá ryba","Benátská 1965/4",50.0724184,14.4230724],
+["My People Bar","",50.0859887,14.4202891],
+["Na Schůdku","Polská 1532/48",50.0784666,14.4457386],
+["O'Che's bar","Liliová 14",50.0854346,14.4164382],
+["Once Upon a Beer","",50.0747286,14.4422167],
+["Pípa Beer Story","",50.0891595,14.4229002],
+["Pivní bar Blanická 28","Blanická 1008/28",50.0775690,14.4395939],
+["Pivní Přístav","Rašínovo nábřeží 1781/64",50.0735363,14.4141184],
+["Pivnice Štupartská","Malá Štupartská 9",50.0877960,14.4246890],
+["Pivnice U Kata","U Radnice 6",50.0873290,14.4192916],
+["Pivnice U Vency","",50.0815390,14.4226261],
+["Pivnice V Chodské","Chodská 1416/10",50.0737999,14.4460088],
+["Plzeňský Anny Bar","Jaromírova 33",50.0651894,14.4288027],
+["Popocafepetl","Na Struze 4",50.0794944,14.4146567],
+["Prague Beer Museum (Americká)","Americká 43",50.0744865,14.4363947],
+["Prague Beer Museum (Smetanovo nábř.)","Smetanovo nábřeží 205/22",50.0850716,14.4140043],
+["Propaganda","Pštrossova 29",50.0796933,14.4153203],
+["Pult","V Celnici 1031/4",50.0881763,14.4305682],
+["Rock n Beer Bar","",50.0791922,14.4269968],
+["Rocky O' Reillys","Štěpánská 32",50.0795219,14.4260267],
+["Salmovská literární kavárna","Salmovská 2003/16",50.0750022,14.4226263],
+["Snack bar U Dandů","Slezská 552/4",50.0759571,14.4393986],
+["Special Pub U Brácha","Na Hrobci",50.0683934,14.4165575],
+["The Down Under","Vinohradská 48",50.0768931,14.4416245],
+["The Dubliner Prague","",50.0880549,14.4232292],
+["The Dutch Pub","Vladislavova 1390/17",50.0805826,14.4209707],
+["The PUB","Hálkova 1631/6",50.0761498,14.4282973],
+["Turnovská pivnice","",50.0846184,14.4399159],
+["Tvrdej dopad","Jaromírova 50",50.0649154,14.4309340],
+["U Žaludů","Na zbořenci 261/5",50.0772439,14.4171486],
+["U Karla","Křemencova 186/7",50.0785098,14.4172274],
+["U Libuše","",50.0693488,14.4154131],
+["U plavců","",50.0705813,14.4157611],
+["U suchý dásně","Trojická 1912/11",50.0708373,14.4164627],
+["U Sudu","Vodičkova 677/10",50.0789387,14.4220726],
+["U Tří kočiček","Ječná 1255/25",50.0757000,14.4245060],
+["U Vávrů","Štubertova 4",50.0763677,14.4376730],
+["Valhalla Beer Pub","pasáž Lucerna",50.0812727,14.4255703],
+["Vínko Charlie","Myslíkova 30",50.0780901,14.4189385],
+["Vape House Prague","",50.0821718,14.4455537],
+["Vzorkovna (Dog bar)","Národní 11",50.0817206,14.4159579],
+["Waid","Lublaňská 57",50.0745621,14.4310594],
+["Woodstock bar","Bělehradská 36",50.0683113,14.4341075]
+];
+const HOME = { name: "Airbnb", street: "Sokolská 1605", lat: 50.0768087, lon: 14.4293390 };
+
+// ---------- storage (per phone until the shared backend is added) ----------
+const KEY = "pubtracker-v1";
+let state = { name: "", done: {} };
+try { state = Object.assign(state, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; } }
+
+// ---------- map geometry: 1 world unit = 1 km ----------
+const LAT0 = 50.058, LAT1 = 50.095, LON0 = 14.405, LON1 = 14.455;
+const KM_LAT = 111.2, KM_LON = 111.2 * Math.cos(50.0765 * Math.PI / 180);
+const WW = (LON1 - LON0) * KM_LON, WH = (LAT1 - LAT0) * KM_LAT;
+const toWorld = (lat, lon) => new THREE.Vector3((lon - LON0) * KM_LON - WW / 2, 0, -((lat - LAT0) * KM_LAT - WH / 2));
+
+// Palettes follow the Daylight Year tokens.
+const PAL = {
+  light: { bg: "#eceff5", ground: "#e3e8f2", minor: "#ffffff", mid: "#fbfcfe", major: "#ffffff", water: "#9fc0ea", slab: "#c3cad9", todo: "#8a93a6", done: "#14833b", home: "#d96f00", ring: "#2756d4" },
+  dark:  { bg: "#080d18", ground: "#0c1322", minor: "#1d2a45", mid: "#2e3d62", major: "#3a4d78", water: "#1d3a66", slab: "#050a14", todo: "#4d5876", done: "#58d68d", home: "#ffb23e", ring: "#8aacff" }
+};
+const isDark = () => {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+};
+const pal = () => PAL[isDark() ? "dark" : "light"];
+
+// ---------- renderer and scene ----------
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+stage.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.05, 100);
+const DEFAULT_POS = new THREE.Vector3(0, 6.2, 4.4);
+camera.position.copy(DEFAULT_POS);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 0.8;
+controls.maxDistance = 12;
+controls.maxPolarAngle = Math.PI * 0.47;
+controls.screenSpacePanning = true;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.95));
+const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
+sunLight.position.set(2, 5, 3);
+scene.add(sunLight);
+
+const world = new THREE.Group();
+scene.add(world);
+
+// Diorama base: a map-printed slab with a thin edge.
+const groundMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(WW, WH).rotateX(-Math.PI / 2), groundMat);
+world.add(ground);
+const slabMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const slab = new THREE.Mesh(new THREE.BoxGeometry(WW + 0.04, 0.05, WH + 0.04), slabMat);
+slab.position.y = -0.026;
+world.add(slab);
+
+// ---------- street texture, drawn from the OSM export ----------
+let LINES = [];
+let tex = null;
+const CW = 2048, CH = Math.round(CW * WH / WW);
+const pxy = (lat, lon) => [(lon - LON0) / (LON1 - LON0) * CW, (LAT1 - lat) / (LAT1 - LAT0) * CH];
+
+function drawMap(p) {
+  const c = document.createElement("canvas");
+  c.width = CW; c.height = CH;
+  const g = c.getContext("2d");
+  g.fillStyle = p.ground; g.fillRect(0, 0, CW, CH);
+  g.lineCap = "round"; g.lineJoin = "round";
+  const layers = [["minor", 2.2, p.minor], ["mid", 4.5, p.mid], ["major", 8, p.major], ["water", 46, p.water]];
+  for (const [cls, width, color] of layers) {
+    g.strokeStyle = color; g.lineWidth = width;
+    for (const [k, pts] of LINES) {
+      if (k !== cls) continue;
+      g.beginPath();
+      pts.forEach((ll, j) => { const [x, y] = pxy(ll[0], ll[1]); j ? g.lineTo(x, y) : g.moveTo(x, y); });
+      g.stroke();
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+
+// ---------- pubs ----------
+const stemGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.1, 10);
+const headGeo = new THREE.SphereGeometry(0.036, 20, 14);
+const pins = PUBS.map((p, i) => {
+  const g = new THREE.Group();
+  const m = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5 });
+  const stem = new THREE.Mesh(stemGeo, m); stem.position.y = 0.05;
+  const head = new THREE.Mesh(headGeo, m); head.position.y = 0.12;
+  head.userData.i = i;
+  g.add(stem, head);
+  g.position.copy(toWorld(p[2], p[3]));
+  world.add(g);
+  return { g, m, head };
+});
+
+// Selected pub ring
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x2756d4, transparent: true, opacity: 0.9 });
+const selRing = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.075, 48).rotateX(-Math.PI / 2), ringMat);
+selRing.visible = false;
+world.add(selRing);
+
+// Airbnb beacon
+const hp = toWorld(HOME.lat, HOME.lon);
+const beacon = new THREE.Group();
+beacon.position.copy(hp);
+const poleMat = new THREE.MeshStandardMaterial({ color: 0xd96f00 });
+const topMat = new THREE.MeshStandardMaterial({ color: 0xd96f00, emissive: 0x552200 });
+const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.45, 12), poleMat);
+pole.position.y = 0.225;
+const top = new THREE.Mesh(new THREE.OctahedronGeometry(0.075), topMat);
+top.position.y = 0.5;
+const homeRingMat = new THREE.MeshBasicMaterial({ color: 0xd96f00, transparent: true, opacity: 0.8 });
+const homeRing = new THREE.Mesh(new THREE.RingGeometry(0.09, 0.115, 48).rotateX(-Math.PI / 2), homeRingMat);
+homeRing.position.y = 0.004;
+beacon.add(pole, top, homeRing);
+world.add(beacon);
+
+// Colour everything from the active palette and the saved progress.
+function applyPalette() {
+  const p = pal();
+  scene.background = new THREE.Color(p.bg);
+  if (tex) tex.dispose();
+  tex = drawMap(p);
+  groundMat.map = tex; groundMat.needsUpdate = true;
+  slabMat.color.set(p.slab);
+  poleMat.color.set(p.home); topMat.color.set(p.home); homeRingMat.color.set(p.home);
+  ringMat.color.set(p.ring);
+  refreshPins();
+}
+function refreshPins() {
+  const p = pal();
+  pins.forEach((pin, i) => {
+    pin.m.color.set(state.done[i] ? p.done : p.todo);
+    const s = i === selected ? 1.35 : 1;
+    pin.g.scale.set(s, s, s);
+  });
+  document.getElementById("count").textContent = `${Object.keys(state.done).length} / ${PUBS.length}`;
+}
+
+// ---------- selection and tap ----------
+let selected = null;
+const ray = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+let downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener("pointerup", e => {
+  if (!downAt) return;
+  const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]);
+  downAt = null;
+  if (moved > 6) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(pins.map(p => p.head), false)[0];
+  if (hit) select(hit.object.userData.i);
+});
+
+function select(i) {
+  selected = i;
+  const pin = pins[i];
+  selRing.visible = true;
+  selRing.position.set(pin.g.position.x, 0.004, pin.g.position.z);
+  refreshPins();
+  renderSheet();
+  document.getElementById("sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ---------- camera controls ----------
+function flyTo(target) {
+  const offset = camera.position.clone().sub(controls.target);
+  controls.target.copy(target);
+  camera.position.copy(target).add(offset);
+  controls.update();
+}
+document.getElementById("zin").onclick = () => { controls.dollyIn(1.25); controls.update(); };
+document.getElementById("zout").onclick = () => { controls.dollyOut(1.25); controls.update(); };
+document.getElementById("reset").onclick = () => { camera.position.copy(DEFAULT_POS); controls.target.set(0, 0, 0); controls.update(); };
+document.getElementById("home").onclick = () => flyTo(new THREE.Vector3(hp.x, 0, hp.z));
+
+// ---------- labels pinned to 3D points ----------
+const tagHome = document.getElementById("tag-home");
+const tagPub = document.getElementById("tag-pub");
+function placeTag(el, pos, lift) {
+  const v = pos.clone().project(camera);
+  if (v.z > 1) { el.classList.remove("on"); return; }
+  const w = stage.clientWidth, h = stage.clientHeight;
+  el.style.left = ((v.x + 1) / 2 * w) + "px";
+  el.style.top = ((1 - v.y) / 2 * h) + "px";
+  el.classList.add("on");
+}
+function placeTags() {
+  placeTag(tagHome, new THREE.Vector3(hp.x, 0.55, hp.z), 0);
+  if (selected !== null) {
+    const pg = pins[selected].g.position;
+    placeTag(tagPub, new THREE.Vector3(pg.x, 0.2, pg.z), 0);
+    tagPub.textContent = PUBS[selected][0];
+  } else {
+    tagPub.classList.remove("on");
+  }
+}
+
+// ---------- resize and loop ----------
+new ResizeObserver(() => {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}).observe(stage);
+
+function tick() {
+  controls.update();
+  renderer.render(scene, camera);
+  placeTags();
+  requestAnimationFrame(tick);
+}
+
+// ---------- sheet: name, photo, completion ----------
+const sheet = document.getElementById("sheet");
+const nameInput = document.getElementById("name");
+nameInput.value = state.name || "";
+nameInput.addEventListener("change", () => { state.name = nameInput.value.trim(); save(); });
+
+function el(tag, props, kids) {
+  const n = document.createElement(tag);
+  for (const k in (props || {})) {
+    if (k === "text") n.textContent = props[k];
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), props[k]);
+    else n.setAttribute(k, props[k]);
+  }
+  (kids || []).forEach(c => n.appendChild(c));
+  return n;
+}
+
+function renderSheet() {
+  if (selected === null) { sheet.hidden = true; sheet.replaceChildren(); return; }
+  sheet.hidden = false;
+  const p = PUBS[selected];
+  const rec = state.done[selected];
+  const kids = [
+    el("div", { class: "eyebrow", text: rec ? "Completed" : "Not done yet" }),
+    el("h2", { text: p[0] }),
+    el("div", { class: "addr", text: p[1] || "Address not on map" })
+  ];
+  if (rec) {
+    kids.push(el("div", { class: "status", text: `Completed by ${rec.by} on ${new Date(rec.at).toLocaleString()}` }));
+    if (rec.photo) kids.push(el("img", { src: rec.photo, alt: `Photo at ${p[0]}` }));
+    kids.push(el("div", { class: "btnrow" }, [
+      el("button", { class: "btn ghost", text: "Undo completion", onclick: () => {
+        delete state.done[selected]; save(); refreshPins(); renderSheet();
+      } })
+    ]));
+  } else {
+    kids.push(el("div", { class: "status", text: "Take a photo with your drink here to complete this pub." }));
+    const input = el("input", { type: "file", accept: "image/*", capture: "environment" });
+    input.addEventListener("change", () => onPhoto(input.files[0]));
+    kids.push(el("div", { class: "btnrow" }, [el("label", { class: "btn" }, [document.createTextNode("Take photo"), input])]));
+  }
+  sheet.replaceChildren(...kids);
+}
+
+// Shrink the phone photo so it fits in storage.
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 900 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.7));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not read photo")); };
+    img.src = url;
+  });
+}
+
+async function onPhoto(file) {
+  if (!file || selected === null) return;
+  const name = (nameInput.value || "").trim();
+  if (!name) {
+    sheet.replaceChildren(el("div", { class: "status", text: "Type your name at the top first, then take the photo." }));
+    nameInput.focus();
+    return;
+  }
+  state.name = name;
+  let photo = null;
+  try { photo = await shrink(file); } catch (e) { photo = null; }
+  state.done[selected] = { by: name, at: new Date().toISOString(), photo };
+  let note = null;
+  if (!save()) {
+    state.done[selected].photo = null;
+    save();
+    note = "Saved without the photo: this phone's storage is full.";
+  }
+  refreshPins();
+  renderSheet();
+  if (note) sheet.append(el("div", { class: "status", text: note }));
+}
+
+// ---------- start ----------
+applyPalette();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyPalette);
+fetch("data/streets.json")
+  .then(r => r.json())
+  .then(d => { LINES = d.lines; applyPalette(); })
+  .catch(() => { /* pins still work on a plain base */ });
+renderSheet();
+tick();
+</script>
+</body>
+</html>
