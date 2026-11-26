@@ -163,6 +163,10 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
   .sheet{padding:14px}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} .beer::after{animation:none} }
+/* Map buttons in the same icon style as the blips: white badge, dark outline, dark symbol */
+.tools button,.fsbtn,.themebtn{width:44px;height:44px;border-radius:999px;border:2px solid #1f2328;background:#ffffff;color:#1f2328;box-shadow:0 2px 8px rgba(0,0,0,.2);-webkit-backdrop-filter:none;backdrop-filter:none}
+.tools svg,.fsbtn svg,.themebtn svg{width:22px;height:22px;stroke:#1f2328;stroke-width:2.5}
+.tools button:active,.fsbtn:active,.themebtn:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
@@ -190,7 +194,6 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
       <div class="tools">
         <button id="zin" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
         <button id="zout" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
-        <button id="reset" aria-label="Reset view" title="Reset view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
       </div>
       <div class="hint">Drag to turn · pinch to zoom</div>
       <button id="full" class="fsbtn" aria-label="Full screen" title="Full screen"></button>
@@ -670,7 +673,6 @@ function zoomBy(factor) {
 }
 document.getElementById("zin").onclick = () => zoomBy(1 / 1.25);
 document.getElementById("zout").onclick = () => zoomBy(1.25);
-document.getElementById("reset").onclick = () => { camera.position.copy(DEFAULT_POS); controls.target.set(0, 0, 0); controls.update(); };
 // ---------- full screen icon (the stage only; the preview may refuse it) ----------
 const ICON_EXPAND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
 const ICON_COLLAPSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
