@@ -44,10 +44,16 @@ h2{font:600 18px/1.3 var(--f-head);margin:0;text-wrap:balance}
 .tile .v{font:600 26px/1.1 var(--f-head);font-variant-numeric:tabular-nums}
 .stage{position:relative;height:clamp(380px,64vh,580px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg);touch-action:none}
 .stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.fsbtn{position:absolute;right:10px;bottom:10px;z-index:2;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.fsbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fsbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stage:fullscreen{height:100vh;height:100dvh;width:100%;border:0;border-radius:0;background:var(--bg)}
+.stage:-webkit-full-screen{height:100vh;width:100%;border:0;border-radius:0;background:var(--bg)}
 .stage canvas:active{cursor:grabbing}
 .tools{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
 .tools button{font:600 14px/1 var(--f-body);width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.tools button.wide{width:auto;font-size:12px;padding:0 10px}
+.tools button{display:grid;place-items:center;padding:0}
+.tools svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:var(--glass);padding:4px 8px;border-radius:8px;z-index:2;pointer-events:none}
 .tag{position:absolute;transform:translate(-50%,-115%);pointer-events:none;white-space:nowrap;font:600 12px/1 var(--f-body);padding:6px 9px;border-radius:8px;background:var(--ink);color:var(--bg);opacity:0;transition:opacity .15s;z-index:1}
@@ -70,33 +76,62 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn:focus-within,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .btn.dim{opacity:.5;cursor:default}
-@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+.pintcard{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+.pintcard > div:empty{display:none}
+.pint{position:relative;width:100%;max-width:520px;height:40px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--panel2)}
+.beer{position:absolute;top:0;bottom:0;left:0;width:var(--fill,0%);background:linear-gradient(180deg,#fcd66b,#f7b733 50%,#e08e0b);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.beer::after{content:"";position:absolute;right:-7px;top:-3px;bottom:-3px;width:18px;background:#fff6dc;border-radius:50%;animation:slosh 3.2s ease-in-out infinite alternate}
+.beer.empty::after{display:none}
+@keyframes slosh{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+.pintlabel{font:500 15px var(--f-body);color:var(--muted)}
+.pintlabel span{font:600 22px var(--f-head);color:var(--ink);font-variant-numeric:tabular-nums}
+.findbox{display:grid;gap:8px}
+.findbox .lbl{color:var(--muted);font-size:13px}
+.findbox input[type=search]{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 14px;width:100%}
+.results{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.results:empty{display:none}
+.results button{width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.results button:hover{border-color:var(--muted)}
+.results button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.results .none{color:var(--muted);font-size:13px;padding:6px 4px}
+.wxbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wxbtns button{font:500 12px var(--f-body);border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
+.wxbtns button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.wxbtns button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:600px){
+  input[type=text],input[type=search]{font-size:16px;min-height:44px}
+  .tools button,.fsbtn{width:44px;height:44px}
+  .tools svg,.fsbtn svg{width:22px;height:22px}
+  .btn{min-height:44px;display:inline-flex;align-items:center}
+  .results button{min-height:44px}
+  .wxbtns button{min-height:38px;padding:6px 12px}
+  .hint{display:none}
+  .stage{height:min(62vh,520px);min-height:340px}
+  .pint{height:34px}
+  .sheet{padding:14px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} .beer::after{animation:none} }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <div class="card head">
+  <div class="card head pintcard">
     <div>
-      <div class="eyebrow">Stag · Prague</div>
-      <h1>Prague Pub Crawl</h1>
-      <p class="sub">Drag to turn, pinch or scroll to zoom. Tap a pin, take a photo with your drink, and the pin turns green.</p>
     </div>
-    <div class="tile" aria-live="polite">
-      <div class="k">Pubs done</div>
-      <div class="v" id="count">0 / 78</div>
-    </div>
+    <div class="pint" aria-hidden="true"><div class="beer" id="beer"></div></div>
+    <div class="pintlabel" aria-live="polite"><span id="count">0 / 78</span> pubs done</div>
   </div>
 
   <div class="card">
     <div class="stage" id="stage">
       <div class="tools">
-        <button id="zin" aria-label="Zoom in">+</button>
-        <button id="zout" aria-label="Zoom out">−</button>
-        <button id="reset" class="wide" aria-label="Reset view">Reset</button>
-        <button id="home" class="wide" aria-label="Centre on the Airbnb">Airbnb</button>
+        <button id="zin" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="zout" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        <button id="reset" aria-label="Reset view" title="Reset view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
       </div>
       <div class="hint">Drag to turn · pinch to zoom</div>
+      <button id="full" class="fsbtn" aria-label="Full screen" title="Full screen"></button>
       <div class="tag hot" id="tag-home">Airbnb · Sokolská 1605</div>
       <div class="tag" id="tag-pub"></div>
     </div>
@@ -110,16 +145,23 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   <div class="card sheet" id="sheet" hidden></div>
 
-  <div class="card namerow">
-    <label for="name">Your name</label>
-    <input type="text" id="name" placeholder="e.g. Dave" autocomplete="off">
+  <div class="card" id="weather" style="color:var(--muted)"><span id="wxtext">Loading weather…</span></div>
+
+  <div class="card findbox">
+    <label for="find" class="lbl">Find a pub</label>
+    <input type="search" id="find" placeholder="Type a pub name or street" autocomplete="off">
+    <ul id="results" class="results"></ul>
   </div>
+
 
 </div>
 
+<script src="data/streets.js"></script>
+<script src="data/buildings.js"></script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // ---------- data ----------
 // [name, street, lat, lon] for pubs within about 1.5 km of the Airbnb (OpenStreetMap)
@@ -219,8 +261,8 @@ const toWorld = (lat, lon) => new THREE.Vector3((lon - LON0) * KM_LON - WW / 2, 
 
 // Palettes follow the Daylight Year tokens.
 const PAL = {
-  light: { bg: "#eceff5", ground: "#e3e8f2", minor: "#ffffff", mid: "#fbfcfe", major: "#ffffff", water: "#9fc0ea", slab: "#c3cad9", todo: "#8a93a6", done: "#14833b", home: "#d96f00", ring: "#2756d4" },
-  dark:  { bg: "#080d18", ground: "#0c1322", minor: "#1d2a45", mid: "#2e3d62", major: "#3a4d78", water: "#1d3a66", slab: "#050a14", todo: "#4d5876", done: "#58d68d", home: "#ffb23e", ring: "#8aacff" }
+  light: { bg: "#eceff5", ground: "#e3e8f2", minor: "#ffffff", mid: "#fbfcfe", major: "#ffffff", water: "#9fc0ea", slab: "#c3cad9", bld: "#f4f5f8", todo: "#8a93a6", done: "#14833b", home: "#d96f00", ring: "#2756d4" },
+  dark:  { bg: "#080d18", ground: "#0c1322", minor: "#1d2a45", mid: "#2e3d62", major: "#3a4d78", water: "#1d3a66", slab: "#050a14", bld: "#27344f", todo: "#4d5876", done: "#58d68d", home: "#ffb23e", ring: "#8aacff" }
 };
 const isDark = () => {
   const t = document.documentElement.dataset.theme;
@@ -263,6 +305,26 @@ const slab = new THREE.Mesh(new THREE.BoxGeometry(WW + 0.04, 0.05, WH + 0.04), s
 slab.position.y = -0.026;
 world.add(slab);
 
+// ---------- buildings: footprints from the OSM export, extruded ----------
+const BUILD_VERT = 2.5; // vertical exaggeration so the city reads at this scale
+const buildingMat = new THREE.MeshStandardMaterial({ color: 0xf4f5f8, roughness: 0.85 });
+function buildBuildings() {
+  const list = window.BUILDINGS_DATA || [];
+  if (!list.length) return;
+  const geos = [];
+  for (const [h, ring] of list) {
+    const shape = new THREE.Shape();
+    ring.forEach(([lat, lon], j) => {
+      const x = (lon - LON0) * KM_LON - WW / 2;
+      const y = (lat - LAT0) * KM_LAT - WH / 2;
+      if (j) shape.lineTo(x, y); else shape.moveTo(x, y);
+    });
+    const g = new THREE.ExtrudeGeometry(shape, { depth: (h / 1000) * BUILD_VERT, bevelEnabled: false });
+    geos.push(g.rotateX(-Math.PI / 2));
+  }
+  world.add(new THREE.Mesh(mergeGeometries(geos, false), buildingMat));
+}
+
 // ---------- street texture, drawn from the OSM export ----------
 let LINES = [];
 let tex = null;
@@ -292,13 +354,13 @@ function drawMap(p) {
 }
 
 // ---------- pubs ----------
-const stemGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.1, 10);
-const headGeo = new THREE.SphereGeometry(0.036, 20, 14);
+const stemGeo = new THREE.CylinderGeometry(0.0025, 0.0025, 0.045, 8);
+const headGeo = new THREE.SphereGeometry(0.012, 16, 12);
 const pins = PUBS.map((p, i) => {
   const g = new THREE.Group();
-  const m = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5 });
-  const stem = new THREE.Mesh(stemGeo, m); stem.position.y = 0.05;
-  const head = new THREE.Mesh(headGeo, m); head.position.y = 0.12;
+  const m = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5, depthTest: false });
+  const stem = new THREE.Mesh(stemGeo, m); stem.position.y = 0.0225; stem.renderOrder = 2;
+  const head = new THREE.Mesh(headGeo, m); head.position.y = 0.047; head.renderOrder = 2;
   head.userData.i = i;
   g.add(stem, head);
   g.position.copy(toWorld(p[2], p[3]));
@@ -307,8 +369,9 @@ const pins = PUBS.map((p, i) => {
 });
 
 // Selected pub ring
-const ringMat = new THREE.MeshBasicMaterial({ color: 0x2756d4, transparent: true, opacity: 0.9 });
-const selRing = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.075, 48).rotateX(-Math.PI / 2), ringMat);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x2756d4, transparent: true, opacity: 0.9, depthTest: false });
+const selRing = new THREE.Mesh(new THREE.RingGeometry(0.02, 0.028, 48).rotateX(-Math.PI / 2), ringMat);
+selRing.renderOrder = 2;
 selRing.visible = false;
 world.add(selRing);
 
@@ -316,14 +379,14 @@ world.add(selRing);
 const hp = toWorld(HOME.lat, HOME.lon);
 const beacon = new THREE.Group();
 beacon.position.copy(hp);
-const poleMat = new THREE.MeshStandardMaterial({ color: 0xd96f00 });
-const topMat = new THREE.MeshStandardMaterial({ color: 0xd96f00, emissive: 0x552200 });
-const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.45, 12), poleMat);
-pole.position.y = 0.225;
-const top = new THREE.Mesh(new THREE.OctahedronGeometry(0.075), topMat);
-top.position.y = 0.5;
-const homeRingMat = new THREE.MeshBasicMaterial({ color: 0xd96f00, transparent: true, opacity: 0.8 });
-const homeRing = new THREE.Mesh(new THREE.RingGeometry(0.09, 0.115, 48).rotateX(-Math.PI / 2), homeRingMat);
+const poleMat = new THREE.MeshStandardMaterial({ color: 0xd96f00, depthTest: false });
+const topMat = new THREE.MeshStandardMaterial({ color: 0xd96f00, emissive: 0x552200, depthTest: false });
+const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 0.2, 10), poleMat);
+pole.position.y = 0.1;
+const top = new THREE.Mesh(new THREE.SphereGeometry(0.03, 20, 14), topMat);
+top.position.y = 0.22;
+const homeRingMat = new THREE.MeshBasicMaterial({ color: 0xd96f00, transparent: true, opacity: 0.8, depthTest: false });
+const homeRing = new THREE.Mesh(new THREE.RingGeometry(0.04, 0.05, 48).rotateX(-Math.PI / 2), homeRingMat);
 homeRing.position.y = 0.004;
 beacon.add(pole, top, homeRing);
 world.add(beacon);
@@ -336,6 +399,7 @@ function applyPalette() {
   tex = drawMap(p);
   groundMat.map = tex; groundMat.needsUpdate = true;
   slabMat.color.set(p.slab);
+  buildingMat.color.set(p.bld);
   poleMat.color.set(p.home); topMat.color.set(p.home); homeRingMat.color.set(p.home);
   ringMat.color.set(p.ring);
   refreshPins();
@@ -347,7 +411,11 @@ function refreshPins() {
     const s = i === selected ? 1.35 : 1;
     pin.g.scale.set(s, s, s);
   });
-  document.getElementById("count").textContent = `${Object.keys(state.done).length} / ${PUBS.length}`;
+  const doneN = Object.keys(state.done).length;
+  document.getElementById("count").textContent = `${doneN} / ${PUBS.length}`;
+  const beer = document.getElementById("beer");
+  beer.style.setProperty("--fill", (doneN / PUBS.length * 100).toFixed(1) + "%");
+  beer.classList.toggle("empty", doneN === 0);
 }
 
 // ---------- selection and tap ----------
@@ -368,14 +436,14 @@ renderer.domElement.addEventListener("pointerup", e => {
   if (hit) select(hit.object.userData.i);
 });
 
-function select(i) {
+function select(i, scroll = true) {
   selected = i;
   const pin = pins[i];
   selRing.visible = true;
   selRing.position.set(pin.g.position.x, 0.004, pin.g.position.z);
   refreshPins();
   renderSheet();
-  document.getElementById("sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  if (scroll) document.getElementById("sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 // ---------- camera controls ----------
@@ -385,10 +453,54 @@ function flyTo(target) {
   camera.position.copy(target).add(offset);
   controls.update();
 }
+
+// ---------- find a pub ----------
+const findInput = document.getElementById("find");
+const results = document.getElementById("results");
+function goToPub(i) {
+  select(i, false);
+  const pg = pins[i].g.position;
+  flyTo(new THREE.Vector3(pg.x, 0, pg.z));
+  findInput.value = "";
+  results.replaceChildren();
+  stage.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+findInput.addEventListener("input", () => {
+  const q = findInput.value.trim().toLowerCase();
+  results.replaceChildren();
+  if (!q) return;
+  const hits = PUBS.map((p, i) => [p, i])
+    .filter(([p]) => p[0].toLowerCase().includes(q) || p[1].toLowerCase().includes(q))
+    .slice(0, 8);
+  if (!hits.length) {
+    results.appendChild(el("li", { class: "none", text: "No pub matches that yet." }));
+    return;
+  }
+  for (const [p, i] of hits) {
+    const label = p[0] + (p[1] ? " · " + p[1] : "") + (state.done[i] ? "  ✓ done" : "");
+    results.appendChild(el("li", {}, [el("button", { text: label, onclick: () => goToPub(i) })]));
+  }
+});
 document.getElementById("zin").onclick = () => { controls.dollyIn(1.25); controls.update(); };
 document.getElementById("zout").onclick = () => { controls.dollyOut(1.25); controls.update(); };
 document.getElementById("reset").onclick = () => { camera.position.copy(DEFAULT_POS); controls.target.set(0, 0, 0); controls.update(); };
-document.getElementById("home").onclick = () => flyTo(new THREE.Vector3(hp.x, 0, hp.z));
+// ---------- full screen icon (the stage only; the preview may refuse it) ----------
+const ICON_EXPAND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const ICON_COLLAPSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+const fullBtn = document.getElementById("full");
+fullBtn.innerHTML = ICON_EXPAND;
+if (!document.fullscreenEnabled) fullBtn.hidden = true;
+fullBtn.onclick = () => {
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  stage.requestFullscreen().catch(() => { fullBtn.title = "Full screen isn't available here"; });
+};
+document.addEventListener("fullscreenchange", () => {
+  const on = !!document.fullscreenElement;
+  fullBtn.innerHTML = on ? ICON_COLLAPSE : ICON_EXPAND;
+  const label = on ? "Exit full screen" : "Full screen";
+  fullBtn.title = label;
+  fullBtn.setAttribute("aria-label", label);
+});
 
 // ---------- labels pinned to 3D points ----------
 const tagHome = document.getElementById("tag-home");
@@ -402,10 +514,10 @@ function placeTag(el, pos, lift) {
   el.classList.add("on");
 }
 function placeTags() {
-  placeTag(tagHome, new THREE.Vector3(hp.x, 0.55, hp.z), 0);
+  placeTag(tagHome, new THREE.Vector3(hp.x, 0.27, hp.z), 0);
   if (selected !== null) {
     const pg = pins[selected].g.position;
-    placeTag(tagPub, new THREE.Vector3(pg.x, 0.2, pg.z), 0);
+    placeTag(tagPub, new THREE.Vector3(pg.x, 0.09, pg.z), 0);
     tagPub.textContent = PUBS[selected][0];
   } else {
     tagPub.classList.remove("on");
@@ -424,14 +536,12 @@ function tick() {
   controls.update();
   renderer.render(scene, camera);
   placeTags();
+  if (window.stepWeather) window.stepWeather();
   requestAnimationFrame(tick);
 }
 
 // ---------- sheet: name, photo, completion ----------
 const sheet = document.getElementById("sheet");
-const nameInput = document.getElementById("name");
-nameInput.value = state.name || "";
-nameInput.addEventListener("change", () => { state.name = nameInput.value.trim(); save(); });
 
 function el(tag, props, kids) {
   const n = document.createElement(tag);
@@ -455,72 +565,136 @@ function renderSheet() {
     el("div", { class: "addr", text: p[1] || "Address not on map" })
   ];
   if (rec) {
-    kids.push(el("div", { class: "status", text: `Completed by ${rec.by} on ${new Date(rec.at).toLocaleString()}` }));
-    if (rec.photo) kids.push(el("img", { src: rec.photo, alt: `Photo at ${p[0]}` }));
+    kids.push(el("div", { class: "status", text: `Completed ${new Date(rec.at).toLocaleString()}` }));
     kids.push(el("div", { class: "btnrow" }, [
       el("button", { class: "btn ghost", text: "Undo completion", onclick: () => {
         delete state.done[selected]; save(); refreshPins(); renderSheet();
       } })
     ]));
   } else {
-    kids.push(el("div", { class: "status", text: "Take a photo with your drink here to complete this pub." }));
-    const input = el("input", { type: "file", accept: "image/*", capture: "environment" });
-    input.addEventListener("change", () => onPhoto(input.files[0]));
-    kids.push(el("div", { class: "btnrow" }, [el("label", { class: "btn" }, [document.createTextNode("Take photo"), input])]));
+    kids.push(el("div", { class: "status", text: "Tap below once you're at this pub." }));
+    kids.push(el("div", { class: "btnrow" }, [
+      el("button", { class: "btn", text: "Mark complete", onclick: () => markDone() })
+    ]));
   }
   sheet.replaceChildren(...kids);
 }
 
-// Shrink the phone photo so it fits in storage.
-function shrink(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const s = Math.min(1, 900 / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/jpeg", 0.7));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not read photo")); };
-    img.src = url;
-  });
-}
-
-async function onPhoto(file) {
-  if (!file || selected === null) return;
-  const name = (nameInput.value || "").trim();
-  if (!name) {
-    sheet.replaceChildren(el("div", { class: "status", text: "Type your name at the top first, then take the photo." }));
-    nameInput.focus();
-    return;
-  }
-  state.name = name;
-  let photo = null;
-  try { photo = await shrink(file); } catch (e) { photo = null; }
-  state.done[selected] = { by: name, at: new Date().toISOString(), photo };
-  let note = null;
-  if (!save()) {
-    state.done[selected].photo = null;
-    save();
-    note = "Saved without the photo: this phone's storage is full.";
-  }
+function markDone() {
+  state.done[selected] = { at: new Date().toISOString() };
+  save();
   refreshPins();
   renderSheet();
-  if (note) sheet.append(el("div", { class: "status", text: note }));
 }
 
 // ---------- start ----------
+buildBuildings();
 applyPalette();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyPalette);
-fetch("data/streets.json")
-  .then(r => r.json())
-  .then(d => { LINES = d.lines; applyPalette(); })
-  .catch(() => { /* pins still work on a plain base */ });
+// Street data is loaded as a script so the page also works when opened straight from disk.
+LINES = (window.STREETS_DATA && window.STREETS_DATA.lines) || [];
+applyPalette();
 renderSheet();
 tick();
+
+// ---------- weather (Open-Meteo, no API key) ----------
+const WX = { 0: "clear", 1: "mostly clear", 2: "partly cloudy", 3: "overcast", 45: "fog", 48: "fog",
+  51: "light drizzle", 53: "drizzle", 55: "heavy drizzle", 61: "light rain", 63: "rain", 65: "heavy rain",
+  71: "light snow", 73: "snow", 75: "heavy snow", 80: "rain showers", 81: "rain showers", 82: "heavy showers",
+  95: "thunderstorm", 96: "thunderstorm", 99: "thunderstorm" };
+async function loadWeather() {
+  const out = document.getElementById("wxtext");
+  try {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=50.08&longitude=14.43" +
+      "&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe%2FPrague";
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.status);
+    const c = (await r.json()).current;
+    const sky = WX[c.weather_code] || "mixed";
+    out.textContent = `Prague now: ${Math.round(c.temperature_2m)}°C, ${sky}, wind ${Math.round(c.wind_speed_10m)} km/h`;
+    applyWeather("snow");
+  } catch (e) {
+    out.textContent = "Weather unavailable right now";
+  }
+}
+// ---------- weather effects: fog, light, rain and snow over the city ----------
+const WX_MODES = {
+  clear:  { sun: 0.7,  fog: null,      rain: false, snow: false },
+  cloudy: { sun: 0.35, fog: [6, 14],   rain: false, snow: false },
+  rain:   { sun: 0.25, fog: [5, 12],   rain: true,  snow: false },
+  snow:   { sun: 0.35, fog: [5, 12],   rain: false, snow: true  },
+  fog:    { sun: 0.2,  fog: [1.5, 6],  rain: false, snow: false }
+};
+function modeFromCode(c) {
+  if (c === 45 || c === 48) return "fog";
+  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) return "rain";
+  if (c >= 71 && c <= 77) return "snow";
+  if (c >= 2) return "cloudy";
+  return "clear";
+}
+
+const rainCount = 1400;
+const rainPos = new Float32Array(rainCount * 6);
+function seedRain(i) {
+  const x = (Math.random() - 0.5) * WW * 1.2, y = 0.6 + Math.random() * 0.8, z = (Math.random() - 0.5) * WH * 1.2;
+  rainPos.set([x, y, z, x, y + 0.025, z], i * 6);
+}
+for (let i = 0; i < rainCount; i++) seedRain(i);
+const rainGeo = new THREE.BufferGeometry();
+rainGeo.setAttribute("position", new THREE.BufferAttribute(rainPos, 3));
+const rainSys = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({ color: 0x9dbbe0, transparent: true, opacity: 0.55 }));
+rainSys.visible = false;
+scene.add(rainSys);
+
+const snowCount = 1200;
+const snowPos = new Float32Array(snowCount * 3);
+function seedSnow(i) {
+  snowPos[i * 3] = (Math.random() - 0.5) * WW * 1.2;
+  snowPos[i * 3 + 1] = 0.6 + Math.random() * 0.8;
+  snowPos[i * 3 + 2] = (Math.random() - 0.5) * WH * 1.2;
+}
+for (let i = 0; i < snowCount; i++) seedSnow(i);
+const snowGeo = new THREE.BufferGeometry();
+snowGeo.setAttribute("position", new THREE.BufferAttribute(snowPos, 3));
+const snowSys = new THREE.Points(snowGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.012, transparent: true, opacity: 0.9 }));
+snowSys.visible = false;
+scene.add(snowSys);
+
+window.stepWeather = function () {
+  if (rainSys.visible) {
+    for (let i = 0; i < rainCount; i++) {
+      const k = i * 6;
+      rainPos[k + 1] -= 0.012; rainPos[k + 4] -= 0.012;
+      if (rainPos[k + 1] < 0) seedRain(i);
+    }
+    rainGeo.attributes.position.needsUpdate = true;
+  }
+  if (snowSys.visible) {
+    const t = performance.now() / 1000;
+    for (let i = 0; i < snowCount; i++) {
+      const k = i * 3;
+      snowPos[k + 1] -= 0.003;
+      snowPos[k] += Math.sin(i + t) * 0.0004;
+      if (snowPos[k + 1] < 0) seedSnow(i);
+    }
+    snowGeo.attributes.position.needsUpdate = true;
+  }
+};
+
+function applyWeather(mode) {
+  const m = WX_MODES[mode] || WX_MODES.clear;
+  sunLight.intensity = m.sun;
+  scene.fog = m.fog ? new THREE.Fog(pal().bg, m.fog[0], m.fog[1]) : null;
+  rainSys.visible = m.rain;
+  snowSys.visible = m.snow;
+  document.querySelectorAll("#wxbtns button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+}
+
+// The map is always snowing.
+applyWeather("snow");
+
+loadWeather();
+setInterval(loadWeather, 30 * 60 * 1000);
 </script>
 </body>
 </html>
