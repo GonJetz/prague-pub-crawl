@@ -114,6 +114,8 @@ input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .intro::before{top:0}
 .intro::after{bottom:0}
 .intro.out{opacity:0;pointer-events:none}
+/* hide the map's HUD while the intro plays */
+.stage.intro-on .tools,.stage.intro-on .stars,.stage.intro-on .fsbtn,.stage.intro-on #findpanel{opacity:0;pointer-events:none}
 .intro.out::before{transform:translateY(-100%)}
 .intro.out::after{transform:translateY(100%)}
 /* lower-third captions */
@@ -153,6 +155,19 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .stars .pop{animation:starPop .8s ease-out}
 @keyframes starPop{0%{transform:scale(1)}35%{transform:scale(1.7)}100%{transform:scale(1)}}
 .stage.fakefull .stars{top:calc(14px + env(safe-area-inset-top,0px))}
+/* first-open intro video */
+.firstrun{position:fixed;inset:0;z-index:200;background:#000;display:grid;place-items:center}
+.firstrun[hidden]{display:none}
+.firstrun video{width:100%;height:100%;object-fit:contain;background:#000}
+.firstrun video[hidden]{display:none}
+.firstrun-tap{position:absolute;inset:0;display:grid;place-content:center;gap:14px;background:radial-gradient(ellipse at center,#2a0c3d,#000 70%);border:0;cursor:pointer;color:#fff}
+.firstrun-tap[hidden]{display:none}
+.fr-title{font:400 clamp(64px,20vw,120px)/.85 var(--f-head);letter-spacing:.03em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fr-sub{font:600 14px var(--f-body);letter-spacing:.3em;text-transform:uppercase;animation:frPulse 1.4s ease-in-out infinite}
+@keyframes frPulse{0%,100%{opacity:.45}50%{opacity:1}}
+.firstrun-skip{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:1;font:600 13px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:8px 16px;cursor:pointer}
+.firstrun-skip:focus-visible,.firstrun-tap:focus-visible{outline:2px solid #ffffff;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){.fr-sub{animation:none}}
 .menu{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:auto;padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(180deg,var(--sky1),var(--skym) 55%,var(--sky2))}
 .menu::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.45));pointer-events:none}
 .menu[hidden]{display:none}
@@ -209,6 +224,15 @@ body.menu-open{overflow:hidden}
 </head>
 <body>
 <div class="app">
+
+  <div class="firstrun" id="firstrun" hidden>
+    <button class="firstrun-tap" id="firstrunplay">
+      <span class="fr-title">Piwo City</span>
+      <span class="fr-sub">Tap to play</span>
+    </button>
+    <video id="firstrunvideo" playsinline preload="auto" src="media/intro.mp4" hidden></video>
+    <button class="firstrun-skip" id="firstrunskip">Skip</button>
+  </div>
 
   <div class="menu" id="menu">
     <div class="menu-inner">
@@ -491,7 +515,11 @@ function drawMap(p) {
 
 // ---------- pubs ----------
 // Blips: flat round icons that face the camera and keep the same size on screen.
-const BLIP = 0.052, BLIP_SEL = 0.072, BLIP_HOME = 0.066; // fraction of the map's height
+// Blip sizes are set in screen pixels, then converted to sprite scale for the current map height,
+// so they stay the same size on a small card or a tall full-screen phone.
+const BLIP_PX = 30, BLIP_SEL_PX = 42, BLIP_HOME_PX = 38, NORTH_PX = 28;
+const pxScale = px => (px / Math.max(200, stage.clientHeight)) * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+let BLIP = pxScale(BLIP_PX), BLIP_SEL = pxScale(BLIP_SEL_PX), BLIP_HOME = pxScale(BLIP_HOME_PX); // fraction of the map's height
 // Game-map icon style: flat bright fill, thick near-black outline, solid dark symbol.
 const ICON_INK = "#1f2328";
 const ICON_FILL = { todo: "#8f96a3", done: "#5ff08f", home: "#5ef0de", way: "#ff4fa3" };
@@ -597,7 +625,7 @@ const northTex = (() => {
   return t;
 })();
 const north = new THREE.Sprite(new THREE.SpriteMaterial({ map: northTex, depthTest: false, transparent: true, sizeAttenuation: false }));
-north.scale.set(0.045, 0.045, 1);
+north.scale.set(pxScale(NORTH_PX), pxScale(NORTH_PX), 1);
 north.position.set(0, 0.03, -(MAP_R + 0.02));
 north.renderOrder = 4;
 world.add(north);
@@ -811,6 +839,12 @@ new ResizeObserver(() => {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  // keep blips at the same pixel size when the map changes height (e.g. full screen)
+  BLIP = pxScale(BLIP_PX); BLIP_SEL = pxScale(BLIP_SEL_PX); BLIP_HOME = pxScale(BLIP_HOME_PX);
+  homeBlip.scale.set(BLIP_HOME, BLIP_HOME, 1);
+  const ns = pxScale(NORTH_PX);
+  north.scale.set(ns, ns, 1);
+  if (texTodo) refreshPins();
 }).observe(stage);
 
 function tick() {
@@ -933,9 +967,18 @@ function introU(sec) {
   if (i === last - 1) l = 1 - Math.pow(1 - l, 2);       // soft landing
   return (i + l) / last;
 }
+let pinsShown = null;
+function showIntroPins(on) {
+  if (on === pinsShown) return;
+  pins.forEach(p => { p.g.visible = on; });
+  north.visible = on;
+  pinsShown = on;
+}
 function endIntro() {
   if (!introOn) return;
   introOn = false;
+  showIntroPins(true);
+  stage.classList.remove("intro-on");
   camera.position.copy(DEFAULT_POS);
   controls.target.set(0, 0, 0);
   controls.update();
@@ -945,8 +988,9 @@ window.runIntro = function () {
   if (!introOn) return false;
   if (menuOpen) return true; // hold the intro until the home screen is closed
   const now = performance.now();
-  if (introStart === null) introStart = now;
+  if (introStart === null) { introStart = now; stage.classList.add("intro-on"); }
   const sec = (now - introStart) / 1000;
+  showIntroPins(sec >= 10.8); // the pubs appear on the "78 pubs" shot
   const u = introU(sec);
   camera.position.copy(camPath.getPoint(u));
   controls.target.copy(tgtPath.getPoint(u));
@@ -991,6 +1035,34 @@ document.getElementById("menustart").addEventListener("click", () => {
 document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); setFind(true); });
 document.getElementById("menubtn").addEventListener("click", openMenu);
 openMenu();
+
+// ---------- first open: play the intro video once per phone, then the home screen ----------
+const FIRST_KEY = "pubtracker-introvid";
+let firstSeen = false;
+try { firstSeen = localStorage.getItem(FIRST_KEY) === "1"; } catch (e) {}
+if (!firstSeen) {
+  const fr = document.getElementById("firstrun");
+  const frVid = document.getElementById("firstrunvideo");
+  const frPlay = document.getElementById("firstrunplay");
+  // The video already shows the flyover, so don't repeat the 3D intro this time.
+  introOn = false;
+  introEl.classList.add("out");
+  fr.hidden = false;
+  const finish = () => {
+    frVid.pause();
+    fr.hidden = true;
+    try { localStorage.setItem(FIRST_KEY, "1"); } catch (e) {}
+  };
+  // Phones only allow video with sound after a tap, so the first tap starts it.
+  frPlay.addEventListener("click", () => {
+    frPlay.hidden = true;
+    frVid.hidden = false;
+    frVid.play().catch(() => { frVid.muted = true; frVid.play().catch(finish); });
+  });
+  frVid.addEventListener("ended", finish);
+  frVid.addEventListener("error", finish);
+  document.getElementById("firstrunskip").addEventListener("click", finish);
+}
 
 // ---------- light / dark (remembered on this phone) ----------
 const THEME_KEY = "pubtracker-theme";
