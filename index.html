@@ -162,7 +162,7 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .firstrun video[hidden]{display:none}
 .firstrun-tap{position:absolute;inset:0;display:grid;place-content:center;gap:14px;background:radial-gradient(ellipse at center,#2a0c3d,#000 70%);border:0;cursor:pointer;color:#fff}
 .firstrun-tap[hidden]{display:none}
-.fr-title{font:400 clamp(64px,20vw,120px)/.85 var(--f-head);letter-spacing:.03em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fr-title{font:400 clamp(64px,20vw,120px)/.85 var(--f-head);letter-spacing:.03em;text-transform:uppercase;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.55)}
 .fr-sub{font:600 14px var(--f-body);letter-spacing:.3em;text-transform:uppercase;animation:frPulse 1.4s ease-in-out infinite}
 @keyframes frPulse{0%,100%{opacity:.45}50%{opacity:1}}
 .firstrun-skip{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:1;font:600 13px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:8px 16px;cursor:pointer}
@@ -182,6 +182,8 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .mbtn:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
 .mbtn:active{transform:translateY(1px)}
 body.menu-open{overflow:hidden}
+.mlink{justify-self:center;margin-top:6px;background:none;border:0;color:#fff;font:600 13px var(--f-body);letter-spacing:.15em;text-transform:uppercase;opacity:.85;cursor:pointer;padding:10px 14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.mlink:focus-visible{outline:2px solid #ffffff;outline-offset:2px;border-radius:8px}
 .credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
@@ -244,6 +246,7 @@ body.menu-open{overflow:hidden}
         <button class="mbtn" id="menufind">Find a pub</button>
         <a class="mbtn mbtn-home" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get me home</a>
       </div>
+      <button class="mlink" id="menuvideo">▶ Watch the intro</button>
     </div>
   </div>
 
@@ -1037,31 +1040,40 @@ document.getElementById("menubtn").addEventListener("click", openMenu);
 openMenu();
 
 // ---------- first open: play the intro video once per phone, then the home screen ----------
+// Also shown when the link ends in ?intro, and from "Watch the intro" on the home screen.
 const FIRST_KEY = "pubtracker-introvid";
 let firstSeen = false;
 try { firstSeen = localStorage.getItem(FIRST_KEY) === "1"; } catch (e) {}
-if (!firstSeen) {
-  const fr = document.getElementById("firstrun");
-  const frVid = document.getElementById("firstrunvideo");
-  const frPlay = document.getElementById("firstrunplay");
+const forceIntro = new URLSearchParams(location.search).has("intro");
+const fr = document.getElementById("firstrun");
+const frVid = document.getElementById("firstrunvideo");
+const frPlay = document.getElementById("firstrunplay");
+function finishIntroVideo() {
+  frVid.pause();
+  fr.hidden = true;
+  try { localStorage.setItem(FIRST_KEY, "1"); } catch (e) {}
+}
+// Phones only allow video with sound after a tap, so this is always started by one.
+function playIntroVideo() {
+  fr.hidden = false;
+  frPlay.hidden = true;
+  frVid.hidden = false;
+  frVid.muted = false;
+  frVid.currentTime = 0;
+  frVid.play().catch(() => { frVid.muted = true; frVid.play().catch(finishIntroVideo); });
+}
+frPlay.addEventListener("click", playIntroVideo);
+frVid.addEventListener("ended", finishIntroVideo);
+frVid.addEventListener("error", finishIntroVideo);
+document.getElementById("firstrunskip").addEventListener("click", finishIntroVideo);
+document.getElementById("menuvideo").addEventListener("click", playIntroVideo);
+if (!firstSeen || forceIntro) {
   // The video already shows the flyover, so don't repeat the 3D intro this time.
   introOn = false;
   introEl.classList.add("out");
   fr.hidden = false;
-  const finish = () => {
-    frVid.pause();
-    fr.hidden = true;
-    try { localStorage.setItem(FIRST_KEY, "1"); } catch (e) {}
-  };
-  // Phones only allow video with sound after a tap, so the first tap starts it.
-  frPlay.addEventListener("click", () => {
-    frPlay.hidden = true;
-    frVid.hidden = false;
-    frVid.play().catch(() => { frVid.muted = true; frVid.play().catch(finish); });
-  });
-  frVid.addEventListener("ended", finish);
-  frVid.addEventListener("error", finish);
-  document.getElementById("firstrunskip").addEventListener("click", finish);
+  frPlay.hidden = false;
+  frVid.hidden = true;
 }
 
 // ---------- light / dark (remembered on this phone) ----------
