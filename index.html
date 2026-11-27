@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Prague Pub Crawl</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -42,6 +42,8 @@
   --shadow:0 2px 6px rgba(0,0,0,.4),0 12px 30px rgba(255,79,163,.15); color-scheme:dark;
 }
 *{box-sizing:border-box}
+/* no double-tap zoom on the page (the map keeps its own pinch zoom) */
+html{touch-action:manipulation}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body);
   padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px}
 .app{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -176,11 +178,21 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .menu-sub{font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
 .menu-stats{margin:10px 0 14px;font:400 22px var(--f-head);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
 .menu-btns{display:grid;gap:12px}
-.mbtn{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:999px;border:2px solid #1f2328;background:#ffffff;color:#1f2328;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer}
-.mbtn-go{background:#ffd84a}
-.mbtn-home{background:linear-gradient(90deg,#ff4fa3,#ff7a1a);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
-.mbtn:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
-.mbtn:active{transform:translateY(1px)}
+/* home screen buttons: one style for all three */
+.mbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1;min-height:62px;padding-block:8px;border-radius:999px;border:2px solid rgba(255,255,255,.85);background:rgba(20,8,40,.55);color:#ffffff;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;text-shadow:0 2px 0 rgba(0,0,0,.25);box-shadow:0 6px 20px rgba(255,79,163,.25);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .15s,transform .08s}
+.mbtn:hover{background:rgba(255,79,163,.3)}
+.mbtn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.mbtn:disabled:hover{background:rgba(20,8,40,.55)}
+.menu-countdown{display:grid;gap:2px;justify-items:center;margin-bottom:2px}
+.menu-countdown[hidden]{display:none}
+.mc-label{font:600 12px var(--f-body);letter-spacing:.25em;text-transform:uppercase;color:#fff;opacity:.85;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.mc-time{font:800 36px/1.1 var(--f-body);color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.01em;text-shadow:0 0 6px rgba(255,122,26,.95),0 0 16px rgba(255,122,26,.7),0 0 32px rgba(255,178,62,.45),0 2px 6px rgba(0,0,0,.4);animation:mcGlow 2.4s ease-in-out infinite}
+@keyframes mcGlow{0%,100%{text-shadow:0 0 6px rgba(255,122,26,.95),0 0 16px rgba(255,122,26,.7),0 0 32px rgba(255,178,62,.45),0 2px 6px rgba(0,0,0,.4)}50%{text-shadow:0 0 8px rgba(255,122,26,1),0 0 24px rgba(255,122,26,.85),0 0 48px rgba(255,178,62,.6),0 2px 6px rgba(0,0,0,.4)}}
+@media (prefers-reduced-motion: reduce){.mc-time{animation:none}}
+.mc-time small{font-size:.5em;font-weight:700;margin:0 8px 0 2px;opacity:.85}
+.mc-time small:last-child{margin-right:0}
+.mbtn:focus-visible{outline:3px solid #ff4fa3;outline-offset:3px}
+.mbtn:not(:disabled):active{transform:translateY(1px)}
 body.menu-open{overflow:hidden}
 .mlink{justify-self:center;margin-top:6px;background:none;border:0;color:#fff;font:600 13px var(--f-body);letter-spacing:.15em;text-transform:uppercase;opacity:.85;cursor:pointer;padding:10px 14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 .mlink:focus-visible{outline:2px solid #ffffff;outline-offset:2px;border-radius:8px}
@@ -242,9 +254,13 @@ body.menu-open{overflow:hidden}
       <div class="menu-sub">Prague · Stag weekend</div>
       <div class="menu-stats" id="menustats"></div>
       <div class="menu-btns">
-        <button class="mbtn mbtn-go" id="menustart">Start crawl</button>
-        <button class="mbtn" id="menufind">Find a pub</button>
-        <a class="mbtn mbtn-home" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get me home</a>
+        <div class="menu-countdown" id="countwrap">
+          <div class="mc-label">Crawl starts in</div>
+          <div class="mc-time" id="countdown"></div>
+        </div>
+        <button class="mbtn" id="menustart" disabled title="Unlocks on 4 December">Start crawl</button>
+        <button class="mbtn" id="menufind">Free Roam</button>
+        <a class="mbtn" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get me home</a>
       </div>
       <button class="mlink" id="menuvideo">▶ Watch the intro</button>
     </div>
@@ -1033,9 +1049,34 @@ function closeMenu() {
 }
 document.getElementById("menustart").addEventListener("click", () => {
   closeMenu();
-  if (introOn) enterFull(); // play the intro full screen
+  endIntro();  // the intro video is the intro now, so no 3D flyover here
+  enterFull(); // straight onto the map, full screen
 });
-document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); setFind(true); });
+// Free Roam: straight onto the map, no intro.
+document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); });
+
+// Countdown on Start crawl to the start of 4 December, Prague time (CET, UTC+1).
+const CRAWL_AT = new Date("2026-12-04T00:00:00+01:00").getTime();
+const countEl = document.getElementById("countdown");
+function tickCountdown() {
+  const s = Math.floor((CRAWL_AT - Date.now()) / 1000);
+  if (s <= 0) {
+    // Crawl day: hide the countdown and unlock Start crawl.
+    document.getElementById("countwrap").hidden = true;
+    const start = document.getElementById("menustart");
+    start.disabled = false;
+    start.removeAttribute("title");
+    return false;
+  }
+  const pad = n => String(n).padStart(2, "0");
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  countEl.innerHTML = `${pad(h)}<small>h</small>${pad(m)}<small>m</small>${pad(sec)}<small>s</small>`;
+  countEl.setAttribute("aria-label", `${h} hours ${m} minutes ${sec} seconds until the crawl`);
+  return true;
+}
+if (tickCountdown()) {
+  const countTimer = setInterval(() => { if (!tickCountdown()) clearInterval(countTimer); }, 1000);
+}
 document.getElementById("menubtn").addEventListener("click", openMenu);
 openMenu();
 
@@ -1075,6 +1116,13 @@ if (!firstSeen || forceIntro) {
   frPlay.hidden = false;
   frVid.hidden = true;
 }
+
+// ---------- stop accidental page zoom (iPhone Safari ignores the viewport setting) ----------
+// Pinch on the map still zooms the map; pinching anywhere else does nothing.
+document.addEventListener("gesturestart", e => e.preventDefault(), { passive: false });
+document.addEventListener("touchmove", e => {
+  if (e.touches.length > 1 && !e.target.closest("#stage")) e.preventDefault();
+}, { passive: false });
 
 // ---------- light / dark (remembered on this phone) ----------
 const THEME_KEY = "pubtracker-theme";
