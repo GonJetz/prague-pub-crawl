@@ -233,6 +233,26 @@ body.menu-open{overflow:hidden}
 a.btn{text-decoration:none}
 .pinticon,.pinicon{width:20px;height:20px;flex:none}
 .status.ic .pinticon{width:24px;height:24px}
+/* passcode screen: iPhone lock screen style over a blurred team screen */
+.lock{position:fixed;inset:0;z-index:130;display:grid;place-items:center;overflow:auto;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));background:rgba(12,6,24,.55);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",var(--f-body);animation:lockIn .25s ease-out both}
+.lock[hidden]{display:none}
+@keyframes lockIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+.lock-inner{margin-block:auto;display:grid;justify-items:center;gap:18px;width:100%;max-width:300px}
+.lock-icon{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lock-title{font-size:20px;line-height:1.2;letter-spacing:.01em;text-align:center}
+.lock-dots{display:flex;gap:22px;margin:4px 0 14px}
+.lock-dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid #fff;transition:background .08s}
+.lock-dots i.on{background:#fff}
+.lock-dots.shake{animation:lockShake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes lockShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(5px)}30%,50%,70%{transform:translateX(-12px)}40%,60%{transform:translateX(12px)}}
+.lock-pad{display:grid;grid-template-columns:repeat(3,78px);gap:16px 24px;justify-content:center}
+.lock .key{width:78px;height:78px;border-radius:50%;border:0;background:rgba(255,255,255,.17);color:#fff;font-family:inherit;font-weight:300;font-size:34px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:0;transition:background .25s;-webkit-tap-highlight-color:transparent}
+.lock .key small{font-size:10px;font-weight:600;line-height:1;letter-spacing:.18em;margin-left:.18em}
+.lock .key:active{background:rgba(255,255,255,.5);transition:none}
+.lock .key:focus-visible,.lock-action:focus-visible{outline:2px solid var(--tc,#fff);outline-offset:3px}
+.lock-action{align-self:center;justify-self:center;background:none;border:0;color:#fff;font-family:inherit;font-size:17px;cursor:pointer;padding:12px 4px}
+@media (max-height:640px){.lock-pad{grid-template-columns:repeat(3,70px);gap:12px 22px}.lock .key{width:70px;height:70px;font-size:30px}}
+@media (prefers-reduced-motion: reduce){.lock,.lock-dots.shake{animation:none}}
 .credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
@@ -300,6 +320,28 @@ a.btn{text-decoration:none}
         <a class="mbtn" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get me home</a>
       </div>
       <button class="mlink" id="menuvideo">▶ Watch the intro</button>
+    </div>
+  </div>
+
+  <div class="lock" id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="locktitle">
+    <div class="lock-inner">
+      <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+      <div class="lock-title" id="locktitle">Enter Passcode</div>
+      <div class="lock-dots" id="lockdots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="lock-pad">
+        <button class="key" data-d="1">1<small>&nbsp;</small></button>
+        <button class="key" data-d="2">2<small>ABC</small></button>
+        <button class="key" data-d="3">3<small>DEF</small></button>
+        <button class="key" data-d="4">4<small>GHI</small></button>
+        <button class="key" data-d="5">5<small>JKL</small></button>
+        <button class="key" data-d="6">6<small>MNO</small></button>
+        <button class="key" data-d="7">7<small>PQRS</small></button>
+        <button class="key" data-d="8">8<small>TUV</small></button>
+        <button class="key" data-d="9">9<small>WXYZ</small></button>
+        <span></span>
+        <button class="key" data-d="0">0</button>
+        <button class="lock-action" id="lockaction">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -1288,12 +1330,83 @@ function renderTeamView(key) {
   }));
 }
 // Start crawl: straight to your team's route if this phone already picked one.
-document.getElementById("menustart").addEventListener("click", () => showTeams(state.team || null));
-teamPick.querySelectorAll("[data-team]").forEach(b => b.addEventListener("click", () => {
-  state.team = b.dataset.team;
+const isUnlocked = key => !!(state.unlocked && state.unlocked[key]);
+document.getElementById("menustart").addEventListener("click", () => showTeams(state.team && isUnlocked(state.team) ? state.team : null));
+// Each team has a passcode; once a phone has entered it, that team stays unlocked on that phone.
+function enterTeam(key) {
+  state.unlocked = Object.assign({}, state.unlocked, { [key]: true });
+  state.team = key;
   save();
-  showTeams(state.team);
+  showTeams(key);
+}
+teamPick.querySelectorAll("[data-team]").forEach(b => b.addEventListener("click", () => {
+  const key = b.dataset.team;
+  if (isUnlocked(key)) enterTeam(key);
+  else openLock(key);
 }));
+
+// ---------- passcode screen, in the style of an iPhone lock screen ----------
+// Only hashes are kept here, not the codes. This is a light lock: the site has no server,
+// so it keeps the other team out of your route but would not stop a determined techie.
+const PASS_HASH = {
+  slav: "0d288e948c3c9b8252d82eea563a26a64123243fa302dae3fadccccf0bd61076",
+  chav: "926349af8dee5092b5499cc972ce2ada8c07673c709f564337bcc85f328be969"
+};
+const PASS_LEN = 4;
+const lockEl = document.getElementById("lock");
+const lockDots = document.getElementById("lockdots");
+const lockTitle = document.getElementById("locktitle");
+const lockAction = document.getElementById("lockaction");
+let lockTeam = null, lockCode = "", lockBusy = false;
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function paintLock() {
+  [...lockDots.children].forEach((d, k) => d.classList.toggle("on", k < lockCode.length));
+  lockAction.textContent = lockCode.length ? "Delete" : "Cancel";
+}
+function openLock(key) {
+  lockTeam = key;
+  lockCode = "";
+  lockTitle.textContent = `Enter ${TEAMS[key].name} Passcode`;
+  lockEl.style.setProperty("--tc", TEAMS[key].color);
+  paintLock();
+  lockEl.hidden = false;
+}
+function closeLock() {
+  lockEl.hidden = true;
+  lockTeam = null;
+  lockCode = "";
+}
+async function lockPress(d) {
+  if (lockBusy || lockCode.length >= PASS_LEN) return;
+  lockCode += d;
+  paintLock();
+  if (lockCode.length < PASS_LEN) return;
+  lockBusy = true;
+  const ok = (await sha256(`piwo-city:${lockTeam}:${lockCode}`)) === PASS_HASH[lockTeam];
+  if (ok) {
+    // brief pause so the last dot is seen filling, like the real thing
+    setTimeout(() => { const key = lockTeam; closeLock(); lockBusy = false; enterTeam(key); }, 180);
+  } else {
+    if (navigator.vibrate) navigator.vibrate(200);
+    lockDots.classList.remove("shake"); void lockDots.offsetWidth; lockDots.classList.add("shake");
+    setTimeout(() => { lockCode = ""; paintLock(); lockDots.classList.remove("shake"); lockBusy = false; }, 500);
+  }
+}
+document.querySelectorAll("#lock .key").forEach(k => k.addEventListener("click", () => lockPress(k.dataset.d)));
+lockAction.addEventListener("click", () => {
+  if (lockBusy) return;
+  if (lockCode) { lockCode = lockCode.slice(0, -1); paintLock(); }
+  else closeLock();
+});
+document.addEventListener("keydown", e => {
+  if (lockEl.hidden) return;
+  if (/^[0-9]$/.test(e.key)) lockPress(e.key);
+  else if (e.key === "Backspace" && lockCode && !lockBusy) { lockCode = lockCode.slice(0, -1); paintLock(); }
+  else if (e.key === "Escape") closeLock();
+});
 document.getElementById("tvswitch").addEventListener("click", () => showTeams(null));
 document.getElementById("teamsback").addEventListener("click", () => { teamsEl.hidden = true; openMenu(); });
 document.getElementById("tvgo").addEventListener("click", () => {
