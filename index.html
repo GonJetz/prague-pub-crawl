@@ -173,17 +173,17 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .menu{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:auto;padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(180deg,var(--sky1),var(--skym) 55%,var(--sky2))}
 .menu::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.45));pointer-events:none}
 .menu[hidden]{display:none}
-.menu-inner{position:relative;width:100%;max-width:420px;text-align:center;display:grid;gap:10px}
+.menu-inner{position:relative;width:100%;max-width:420px;text-align:center;display:grid;gap:22px}
 .menu-title{font:400 clamp(64px,20vw,120px)/.85 var(--f-head);letter-spacing:.03em;text-transform:uppercase;background:linear-gradient(90deg,#ff4fa3,#ffb23e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
 .menu-sub{font:600 13px var(--f-body);letter-spacing:.3em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
-.menu-stats{margin:10px 0 14px;font:400 22px var(--f-head);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
-.menu-btns{display:grid;gap:12px}
+.menu-stats{margin:0;font:400 22px var(--f-head);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.menu-btns{display:grid;gap:18px}
 /* home screen buttons: one style for all three */
 .mbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1;min-height:62px;padding-block:8px;border-radius:999px;border:2px solid rgba(255,255,255,.85);background:rgba(20,8,40,.55);color:#ffffff;font:400 24px var(--f-head);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;text-shadow:0 2px 0 rgba(0,0,0,.25);box-shadow:0 6px 20px rgba(255,79,163,.25);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .15s,transform .08s}
 .mbtn:hover{background:rgba(255,79,163,.3)}
 .mbtn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 .mbtn:disabled:hover{background:rgba(20,8,40,.55)}
-.menu-countdown{display:grid;gap:2px;justify-items:center;margin-bottom:2px}
+.menu-countdown{display:grid;gap:4px;justify-items:center;margin-bottom:4px}
 .menu-countdown[hidden]{display:none}
 .mc-label{font:600 12px var(--f-body);letter-spacing:.25em;text-transform:uppercase;color:#fff;opacity:.85;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 .mc-time{font:800 36px/1.1 var(--f-body);color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.01em;text-shadow:0 0 6px rgba(255,122,26,.95),0 0 16px rgba(255,122,26,.7),0 0 32px rgba(255,178,62,.45),0 2px 6px rgba(0,0,0,.4);animation:mcGlow 2.4s ease-in-out infinite}
@@ -194,16 +194,21 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 .mbtn:focus-visible{outline:3px solid #ff4fa3;outline-offset:3px}
 .mbtn:not(:disabled):active{transform:translateY(1px)}
 body.menu-open{overflow:hidden}
-.mlink{justify-self:center;margin-top:6px;background:none;border:0;color:#fff;font:600 13px var(--f-body);letter-spacing:.15em;text-transform:uppercase;opacity:.85;cursor:pointer;padding:10px 14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.mlink{justify-self:center;margin-top:0;background:none;border:0;color:#fff;font:600 13px var(--f-body);letter-spacing:.15em;text-transform:uppercase;opacity:.85;cursor:pointer;padding:10px 14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 .mlink:focus-visible{outline:2px solid #ffffff;outline-offset:2px;border-radius:8px}
 /* team screen */
 .menu-inner{margin-block:auto}
+#teampick,#teamview{display:grid;gap:22px}
+#teampick[hidden],#teamview[hidden]{display:none}
+/* keep small labels tight to their titles */
+.menu-sub{margin-top:-12px}
+#tvnum{margin-bottom:-14px}
 .menu-title.sm{font-size:clamp(44px,13vw,84px)}
-.team-welcome{margin:2px auto 8px;max-width:36ch;font:500 15px/1.5 var(--f-body);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);text-wrap:pretty}
+.team-welcome{margin:0 auto;max-width:36ch;font:500 15px/1.5 var(--f-body);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);text-wrap:pretty}
 .mbtn .mb-k{font:600 11px var(--f-body);letter-spacing:.25em;opacity:.85;text-shadow:none}
 .mbtn.team-slav{border-color:#4da3ff;box-shadow:0 6px 22px rgba(77,163,255,.45)}
 .mbtn.team-chav{border-color:#ff4fa3;box-shadow:0 6px 22px rgba(255,79,163,.45)}
-.route{list-style:none;margin:4px 0 10px;padding:8px;display:grid;gap:4px;text-align:left;background:rgba(20,8,40,.6);border:1px solid rgba(255,255,255,.25);border-radius:18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.route{list-style:none;margin:0;padding:10px;display:grid;gap:6px;text-align:left;background:rgba(20,8,40,.6);border:1px solid rgba(255,255,255,.25);border-radius:18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .route li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;color:#fff}
 .route li.cross{background:rgba(255,216,74,.14)}
 .route .num{width:34px;height:34px;border-radius:9px;border:2px solid #1f2328;background:var(--tc);color:#1f2328;display:grid;place-items:center;font:400 18px var(--f-head)}
@@ -212,7 +217,22 @@ body.menu-open{overflow:hidden}
 .route .nm{font:600 15px/1.2 var(--f-body)}
 .route .st{font-size:12px;opacity:.75}
 .route .meet{margin-top:2px;font:600 10px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#ffd84a}
-.route .tick{font:700 16px var(--f-body);color:#5ff08f}
+.route .tick .pinticon{width:26px;height:26px;display:block}
+/* full screen: two round buttons pop up at the bottom when a pub is picked */
+.mapsheet{display:none;position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:3;gap:18px}
+.stage.fakefull .mapsheet:not([hidden]){display:flex;animation:msPop .35s cubic-bezier(.2,1.4,.4,1) both}
+.stage.intro-on .mapsheet,.stage.fakefull .hint{display:none}
+.rbtn{width:66px;height:66px;border-radius:999px;border:3px solid #1f2328;background:#ffffff;color:#1f2328;display:grid;place-items:center;padding:0;cursor:pointer;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.rbtn svg{width:34px;height:34px}
+.rbtn.done{background:#5ff08f;cursor:default}
+.rbtn:not(.done):active{transform:translateY(1px)}
+.rbtn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@keyframes msPop{from{opacity:0;transform:translate(-50%,24px) scale(.8)}to{opacity:1;transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.stage.fakefull .mapsheet:not([hidden]){animation:none}}
+.btn.ic,.status.ic{display:inline-flex;align-items:center;gap:8px}
+a.btn{text-decoration:none}
+.pinticon,.pinicon{width:20px;height:20px;flex:none}
+.status.ic .pinticon{width:24px;height:24px}
 .credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
@@ -337,6 +357,7 @@ body.menu-open{overflow:hidden}
       <button id="full" class="fsbtn" aria-label="Full screen" title="Full screen"></button>
       <div class="tag hot" id="tag-home">Airbnb · Sokolská 1605</div>
       <div class="tag" id="tag-pub"></div>
+      <div class="mapsheet" id="mapsheet" hidden aria-live="polite"></div>
     </div>
     <div class="legend">
       <span><i style="background:#8f96a3;border:2px solid #1f2328;border-radius:3px"></i>Not done</span>
@@ -610,6 +631,20 @@ let BLIP = pxScale(BLIP_PX), BLIP_SEL = pxScale(BLIP_SEL_PX), BLIP_HOME = pxScal
 // Game-map icon style: flat bright fill, thick near-black outline, solid dark symbol.
 const ICON_INK = "#1f2328";
 const ICON_FILL = { todo: "#8f96a3", done: "#5ff08f", home: "#5ef0de", way: "#ff4fa3" };
+// Full pint with a foam head: the "pub complete" symbol, drawn in a 128px box.
+function drawPint(g) {
+  const glass = () => { g.beginPath(); g.moveTo(37, 40); g.lineTo(91, 40); g.lineTo(83, 108); g.lineTo(45, 108); g.closePath(); };
+  const foam = [[46, 38, 11], [64, 31, 14], [82, 38, 11]];
+  g.lineJoin = "round";
+  // foam: stroke every bubble, then fill them all so the outline merges into one cloud
+  g.strokeStyle = ICON_INK; g.lineWidth = 8;
+  for (const [x, y, r] of foam) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke(); }
+  g.fillStyle = "#fff6dc";
+  for (const [x, y, r] of foam) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  glass(); g.fillStyle = "#f7b733"; g.fill();
+  g.save(); glass(); g.clip(); g.fillStyle = "#fff6dc"; g.fillRect(30, 36, 70, 14); g.restore();
+  g.strokeStyle = ICON_INK; g.lineWidth = 8; glass(); g.stroke();
+}
 function blipTexture(kind) {
   const c = document.createElement("canvas");
   c.width = c.height = 128;
@@ -629,11 +664,13 @@ function blipTexture(kind) {
     g.beginPath(); g.arc(64, 52, 15, 0, Math.PI * 2);
     g.fillStyle = ICON_INK; g.fill();
   } else {
-    // rounded-square badge
+    // rounded-square badge (done pubs get a full pint)
     g.beginPath(); g.roundRect(10, 10, 108, 108, 24);
     g.fillStyle = fill; g.fill(); g.stroke();
     g.fillStyle = ICON_INK;
-    if (kind === "home") {
+    if (kind === "done") {
+      drawPint(g);
+    } else if (kind === "home") {
       // house with a door cut out
       g.beginPath();
       g.moveTo(64, 28); g.lineTo(100, 60); g.lineTo(90, 60); g.lineTo(90, 96);
@@ -791,7 +828,7 @@ function refreshPins() {
     const step = teamStep(i);
     let tex;
     if (sel) tex = texWay;
-    else if (step >= 0) tex = numberTex(step + 1, state.done[i] ? ICON_FILL.done : (CROSS_STEPS.includes(step) ? "#ffd84a" : TEAMS[activeTeam].color));
+    else if (step >= 0 && !state.done[i]) tex = numberTex(step + 1, CROSS_STEPS.includes(step) ? "#ffd84a" : TEAMS[activeTeam].color);
     else tex = state.done[i] ? texDone : texTodo;
     if (pin.m.map !== tex) { pin.m.map = tex; pin.m.needsUpdate = true; }
     // On a team route, the other pubs fade back so the ten stand out.
@@ -860,7 +897,7 @@ function select(i, scroll = true) {
   selRing.position.set(pin.g.position.x, 0.004, pin.g.position.z);
   refreshPins();
   renderSheet();
-  if (scroll) document.getElementById("sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  if (scroll && !fakeFull) document.getElementById("sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 // ---------- camera controls ----------
@@ -929,6 +966,9 @@ function setFull(on) {
   stage.classList.toggle("fakefull", on);
   // The cards' glass blur would trap the fixed-position map inside its card, so turn it off while full screen.
   document.body.classList.toggle("fs-open", on);
+  // Only the map shows in browser full screen, so the "Pub complete" banner moves into it.
+  const splash = document.getElementById("splash");
+  (on ? stage : document.querySelector(".app")).appendChild(splash);
   fullBtn.innerHTML = on ? ICON_COLLAPSE : ICON_EXPAND;
   const label = on ? "Exit full screen" : "Full screen";
   fullBtn.title = label;
@@ -1000,10 +1040,14 @@ function tick() {
 // ---------- sheet: name, photo, completion ----------
 const sheet = document.getElementById("sheet");
 
+// Pint glass (pub complete) and map pin (directions) icons for buttons and lists.
+const PINT_SVG = '<svg class="pinticon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7.5h12l-1.6 14h-8.8z" fill="#f7b733" stroke="#1f2328" stroke-width="1.6" stroke-linejoin="round"/><path d="M5.6 8.4a2.3 2.3 0 0 1 1.5-4 3 3 0 0 1 5-1.6 2.8 2.8 0 0 1 4.9 1.5 2.2 2.2 0 0 1 1.4 4.1z" fill="#fff6dc" stroke="#1f2328" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+const PIN_SVG = '<svg class="pinicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.3" fill="currentColor"/></svg>';
 function el(tag, props, kids) {
   const n = document.createElement(tag);
   for (const k in (props || {})) {
     if (k === "text") n.textContent = props[k];
+    else if (k === "html") n.innerHTML = props[k]; // fixed icon markup only, never user text
     else if (k.startsWith("on")) n.addEventListener(k.slice(2), props[k]);
     else n.setAttribute(k, props[k]);
   }
@@ -1011,7 +1055,27 @@ function el(tag, props, kids) {
   return n;
 }
 
+// Walking directions in Google Maps from wherever you are now.
+const mapsUrl = p => `https://www.google.com/maps/dir/?api=1&destination=${p[2]},${p[3]}&travelmode=walking`;
+const directionsBtn = p => el("a", { class: "btn ghost ic", target: "_blank", rel: "noopener", href: mapsUrl(p),
+  html: PIN_SVG + "<span>Take me there</span>" });
+
+// Full screen: two round buttons at the bottom of the map (the pub's name is already on its tag).
+function renderMapSheet() {
+  const ms = document.getElementById("mapsheet");
+  if (selected === null) { ms.hidden = true; ms.replaceChildren(); return; }
+  ms.hidden = false;
+  const p = PUBS[selected], rec = state.done[selected];
+  const pint = rec
+    ? el("button", { class: "rbtn done", "aria-label": "Pint down: " + p[0] + " is complete", title: "Pint down", "aria-disabled": "true", html: PINT_SVG })
+    : el("button", { class: "rbtn", "aria-label": "Mark " + p[0] + " complete", title: "Mark complete", html: PINT_SVG, onclick: () => markDone() });
+  const go = el("a", { class: "rbtn", target: "_blank", rel: "noopener", "aria-label": "Take me there", title: "Take me there",
+    href: mapsUrl(p), html: PIN_SVG });
+  ms.replaceChildren(pint, go);
+}
+
 function renderSheet() {
+  renderMapSheet();
   if (selected === null) { sheet.hidden = true; sheet.replaceChildren(); return; }
   sheet.hidden = false;
   const p = PUBS[selected];
@@ -1028,17 +1092,21 @@ function renderSheet() {
     el("h2", { text: p[0] }),
     el("div", { class: "addr", text: p[1] || "Address not on map" })
   ];
+  const goBtn = directionsBtn(p);
   if (rec) {
-    kids.push(el("div", { class: "status", text: `Completed ${new Date(rec.at).toLocaleString()}` }));
+    kids.push(el("div", { class: "status ic", html: PINT_SVG + "<span></span>" }));
+    kids[kids.length - 1].lastChild.textContent = `Pint down · ${new Date(rec.at).toLocaleString()}`;
     kids.push(el("div", { class: "btnrow" }, [
+      goBtn,
       el("button", { class: "btn ghost", text: "Undo completion", onclick: () => {
         delete state.done[selected]; save(); refreshPins(); renderSheet();
       } })
     ]));
   } else {
-    kids.push(el("div", { class: "status", text: "Tap below once you're at this pub." }));
+    kids.push(el("div", { class: "status", text: "Tap the pint once you've had one here." }));
     kids.push(el("div", { class: "btnrow" }, [
-      el("button", { class: "btn", text: "Mark complete", onclick: () => markDone() })
+      el("button", { class: "btn ic", html: PINT_SVG + "<span>Mark complete</span>", onclick: () => markDone() }),
+      goBtn
     ]));
   }
   sheet.replaceChildren(...kids);
@@ -1215,7 +1283,7 @@ function renderTeamView(key) {
     return el("li", { class: (cross ? "cross " : "") + (done ? "done" : "") }, [
       el("span", { class: "num", text: String(step + 1) }),
       el("div", {}, info),
-      el("span", { class: "tick", text: done ? "✓" : "", "aria-label": done ? "Done" : "Not done" })
+      el("span", { class: "tick", html: done ? PINT_SVG : "", "aria-label": done ? "Done" : "Not done" })
     ]);
   }));
 }
