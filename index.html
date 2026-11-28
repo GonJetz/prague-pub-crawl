@@ -56,7 +56,7 @@ h2{font:400 24px/1.1 var(--f-head);letter-spacing:.02em;text-transform:uppercase
 .tile{background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;min-width:150px}
 .tile .k{font-size:11.5px;opacity:.7;letter-spacing:.04em}
 .tile .v{font:600 26px/1.1 var(--f-head);font-variant-numeric:tabular-nums}
-.stage{position:relative;height:clamp(380px,64vh,580px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,var(--sky1),var(--skym) 55%,var(--sky2));touch-action:none}
+.stage{position:relative;height:clamp(420px,74vh,700px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,var(--sky1),var(--skym) 55%,var(--sky2));touch-action:none}
 .stage canvas{display:block;width:100%;height:100%;cursor:grab}
 .fsbtn{position:absolute;right:10px;bottom:10px;z-index:2;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .fsbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -196,6 +196,23 @@ body.fs-open .card{-webkit-backdrop-filter:none;backdrop-filter:none}
 body.menu-open{overflow:hidden}
 .mlink{justify-self:center;margin-top:6px;background:none;border:0;color:#fff;font:600 13px var(--f-body);letter-spacing:.15em;text-transform:uppercase;opacity:.85;cursor:pointer;padding:10px 14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 .mlink:focus-visible{outline:2px solid #ffffff;outline-offset:2px;border-radius:8px}
+/* team screen */
+.menu-inner{margin-block:auto}
+.menu-title.sm{font-size:clamp(44px,13vw,84px)}
+.team-welcome{margin:2px auto 8px;max-width:36ch;font:500 15px/1.5 var(--f-body);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);text-wrap:pretty}
+.mbtn .mb-k{font:600 11px var(--f-body);letter-spacing:.25em;opacity:.85;text-shadow:none}
+.mbtn.team-slav{border-color:#4da3ff;box-shadow:0 6px 22px rgba(77,163,255,.45)}
+.mbtn.team-chav{border-color:#ff4fa3;box-shadow:0 6px 22px rgba(255,79,163,.45)}
+.route{list-style:none;margin:4px 0 10px;padding:8px;display:grid;gap:4px;text-align:left;background:rgba(20,8,40,.6);border:1px solid rgba(255,255,255,.25);border-radius:18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.route li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;color:#fff}
+.route li.cross{background:rgba(255,216,74,.14)}
+.route .num{width:34px;height:34px;border-radius:9px;border:2px solid #1f2328;background:var(--tc);color:#1f2328;display:grid;place-items:center;font:400 18px var(--f-head)}
+.route li.cross .num{background:#ffd84a}
+.route li.done .num{background:#5ff08f}
+.route .nm{font:600 15px/1.2 var(--f-body)}
+.route .st{font-size:12px;opacity:.75}
+.route .meet{margin-top:2px;font:600 10px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#ffd84a}
+.route .tick{font:700 16px var(--f-body);color:#5ff08f}
 .credit{margin:6px 0 0;text-align:center;font-size:11px;color:var(--muted);opacity:.8}
 .findbox{display:grid;gap:8px}
 .findbox[hidden]{display:none}
@@ -225,7 +242,7 @@ body.menu-open{overflow:hidden}
   .results button{min-height:44px}
   .wxbtns button{min-height:38px;padding:6px 12px}
   .hint{display:none}
-  .stage{height:min(62vh,520px);min-height:340px}
+  .stage{height:min(74vh,640px);min-height:360px}
   .pint{height:34px}
   .sheet{padding:14px}
 }
@@ -266,6 +283,28 @@ body.menu-open{overflow:hidden}
     </div>
   </div>
 
+  <div class="menu" id="teams" hidden>
+    <div class="menu-inner">
+      <div id="teampick">
+        <div class="menu-title sm">Pick your team</div>
+        <p class="team-welcome">Welcome to Piwo City, gents. Two teams, two routes, ten pubs each. Your paths cross at pubs 3, 6 and 10, so be there with a pint in hand.</p>
+        <div class="menu-btns">
+          <button class="mbtn team-slav" data-team="slav"><span class="mb-k">Team 1</span>Team Slav</button>
+          <button class="mbtn team-chav" data-team="chav"><span class="mb-k">Team 2</span>Team Chav</button>
+        </div>
+        <button class="mlink" id="teamsback">← Home screen</button>
+      </div>
+      <div id="teamview" hidden>
+        <div class="mc-label" id="tvnum"></div>
+        <div class="menu-title sm" id="tvname"></div>
+        <p class="team-welcome" id="tvwelcome"></p>
+        <ol class="route" id="tvroute"></ol>
+        <div class="menu-btns"><button class="mbtn" id="tvgo">Let's go</button></div>
+        <button class="mlink" id="tvswitch">Switch team</button>
+      </div>
+    </div>
+  </div>
+
 
   <div class="card">
     <div class="progressrow">
@@ -303,6 +342,8 @@ body.menu-open{overflow:hidden}
       <span><i style="background:#8f96a3;border:2px solid #1f2328;border-radius:3px"></i>Not done</span>
       <span><i style="background:#5ff08f;border:2px solid #1f2328;border-radius:3px"></i>Done</span>
       <span><i style="background:#5ef0de;border:2px solid #1f2328;border-radius:3px"></i>Airbnb (Sokolská 1605)</span>
+      <span id="lg-team" hidden><i id="lg-team-i" style="border:2px solid #1f2328;border-radius:3px"></i><span id="lg-team-t"></span></span>
+      <span id="lg-cross" hidden><i style="background:#ffd84a;border:2px solid #1f2328;border-radius:3px"></i>Crossover pub</span>
     </div>
   </div>
 
@@ -317,7 +358,6 @@ body.menu-open{overflow:hidden}
       <div class="splash-sub" id="splashsub"></div>
     </div>
   </div>
-  <a class="homebtn" href="https://www.google.com/maps/dir/?api=1&destination=50.0768087,14.4293390" target="_blank" rel="noopener">Get Me Home</a>
   <p class="credit">Map data © OpenStreetMap contributors</p>
 </div>
 
@@ -327,6 +367,9 @@ body.menu-open{overflow:hidden}
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 
 // ---------- data ----------
 // [name, street, lat, lon] for pubs within about 1.5 km of the Airbnb (OpenStreetMap)
@@ -411,6 +454,31 @@ const PUBS = [
 ["Woodstock bar","Bělehradská 36",50.0683113,14.4341075]
 ];
 const HOME = { name: "Airbnb", street: "Sokolská 1605", lat: 50.0768087, lon: 14.4293390 };
+
+// ---------- teams: two 10-pub routes that meet at pubs 3, 6 and 10 ----------
+const pubIndex = name => {
+  const i = PUBS.findIndex(p => p[0] === name);
+  if (i < 0) console.warn("Route pub not in the list:", name);
+  return i;
+};
+const CROSS_STEPS = [2, 5, 9]; // pubs 3, 6 and 10 (counting from 0)
+const TEAMS = {
+  slav: {
+    n: 1, name: "Team Slav", color: "#4da3ff", other: "chav",
+    welcome: "Welcome, Team Slav. Squat low, drink Czech, and keep up. Your route heads west through the New Town and up into the Old Town.",
+    route: ["The PUB", "U Tří kočiček", "Rock n Beer Bar", "U Karla", "Bar 23",
+            "Jelínkova plzeňská pivnice", "Vzorkovna (Dog bar)", "Jazz Republic", "Pivnice U Kata", "The Dubliner Prague"].map(pubIndex)
+  },
+  chav: {
+    n: 2, name: "Team Chav", color: "#ff4fa3", other: "slav",
+    welcome: "Welcome, Team Chav. Caps on, trackies tucked in, best behaviour (ish). Your route starts in Vinohrady and heads north into the Old Town.",
+    route: ["Pivní bar Blanická 28", "Cafe Alternatif", "Rock n Beer Bar", "Valhalla Beer Pub", "U Sudu",
+            "Jelínkova plzeňská pivnice", "McCarthy's", "Pult", "Pivnice Štupartská", "The Dubliner Prague"].map(pubIndex)
+  }
+};
+// The team whose route is on the map: set by Start crawl, cleared by Free Roam.
+let activeTeam = null;
+const teamStep = i => activeTeam ? TEAMS[activeTeam].route.indexOf(i) : -1;
 
 // ---------- storage (per phone until the shared backend is added) ----------
 const KEY = "pubtracker-v1";
@@ -599,6 +667,45 @@ const pins = PUBS.map((p, i) => {
   return { g, m, head };
 });
 
+// Numbered route badges, made once per number and colour.
+const numTexCache = new Map();
+function numberTex(num, fill) {
+  const key = num + "|" + fill;
+  if (numTexCache.has(key)) return numTexCache.get(key);
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d");
+  g.lineJoin = "round";
+  g.beginPath(); g.roundRect(10, 10, 108, 108, 24);
+  g.fillStyle = fill; g.fill();
+  g.strokeStyle = ICON_INK; g.lineWidth = 9; g.stroke();
+  g.fillStyle = ICON_INK;
+  g.font = "bold 70px system-ui, Arial, sans-serif";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText(String(num), 64, 70);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  numTexCache.set(key, t);
+  return t;
+}
+
+// Route line joining the active team's pubs in order (straight lines, not street directions).
+const routeMat = new LineMaterial({ color: 0xffffff, linewidth: 4, transparent: true, opacity: 0.85, depthTest: false });
+let routeLine = null;
+function drawRoute() {
+  if (routeLine) { world.remove(routeLine); routeLine.geometry.dispose(); routeLine = null; }
+  if (!activeTeam) return;
+  const t = TEAMS[activeTeam];
+  const pts = [];
+  t.route.forEach(i => { const p = pins[i].g.position; pts.push(p.x, 0.006, p.z); });
+  const geo = new LineGeometry();
+  geo.setPositions(pts);
+  routeMat.color.set(t.color);
+  routeLine = new Line2(geo, routeMat);
+  routeLine.renderOrder = 2;
+  world.add(routeLine);
+}
+
 // Selected pub ring
 const ringMat = new THREE.MeshBasicMaterial({ color: 0x2756d4, transparent: true, opacity: 0.9, depthTest: false });
 const selRing = new THREE.Mesh(new THREE.RingGeometry(0.02, 0.028, 48).rotateX(-Math.PI / 2), ringMat);
@@ -681,17 +788,32 @@ function refreshPins() {
   pins.forEach((pin, i) => {
     // The selected pub becomes a waypoint pin whose tip sits on the spot.
     const sel = i === selected;
-    const tex = sel ? texWay : (state.done[i] ? texDone : texTodo);
+    const step = teamStep(i);
+    let tex;
+    if (sel) tex = texWay;
+    else if (step >= 0) tex = numberTex(step + 1, state.done[i] ? ICON_FILL.done : (CROSS_STEPS.includes(step) ? "#ffd84a" : TEAMS[activeTeam].color));
+    else tex = state.done[i] ? texDone : texTodo;
     if (pin.m.map !== tex) { pin.m.map = tex; pin.m.needsUpdate = true; }
+    // On a team route, the other pubs fade back so the ten stand out.
+    pin.m.opacity = (activeTeam && step < 0 && !sel) ? 0.3 : 1;
+    pin.head.renderOrder = step >= 0 || sel ? 4 : 3;
     pin.head.center.set(0.5, sel ? 0.02 : 0.5);
-    const s = sel ? BLIP_SEL : BLIP;
+    const s = sel ? BLIP_SEL : (step >= 0 ? BLIP * 1.15 : BLIP);
     pin.head.scale.set(s, s, 1);
   });
-  const doneN = Object.keys(state.done).length;
-  document.getElementById("count").textContent = `${doneN} / ${PUBS.length}`;
+  const route = activeTeam ? TEAMS[activeTeam].route : null;
+  const doneN = route ? route.filter(i => state.done[i]).length : Object.keys(state.done).length;
+  const total = route ? route.length : PUBS.length;
+  document.getElementById("count").textContent = `${doneN} / ${total}`;
   const beer = document.getElementById("beer");
-  beer.style.setProperty("--fill", (doneN / PUBS.length * 100).toFixed(1) + "%");
+  beer.style.setProperty("--fill", (doneN / total * 100).toFixed(1) + "%");
   beer.classList.toggle("empty", doneN === 0);
+  document.getElementById("lg-team").hidden = !activeTeam;
+  document.getElementById("lg-cross").hidden = !activeTeam;
+  if (activeTeam) {
+    document.getElementById("lg-team-i").style.background = TEAMS[activeTeam].color;
+    document.getElementById("lg-team-t").textContent = TEAMS[activeTeam].name + " route";
+  }
   renderStars();
 }
 
@@ -863,6 +985,7 @@ new ResizeObserver(() => {
   homeBlip.scale.set(BLIP_HOME, BLIP_HOME, 1);
   const ns = pxScale(NORTH_PX);
   north.scale.set(ns, ns, 1);
+  routeMat.resolution.set(w, h);
   if (texTodo) refreshPins();
 }).observe(stage);
 
@@ -893,8 +1016,15 @@ function renderSheet() {
   sheet.hidden = false;
   const p = PUBS[selected];
   const rec = state.done[selected];
+  const step = teamStep(selected);
+  let eyebrow = rec ? "Completed" : "Not done yet";
+  if (step >= 0) {
+    const t = TEAMS[activeTeam];
+    eyebrow = `${t.name} · Pub ${step + 1} of ${t.route.length}` +
+      (CROSS_STEPS.includes(step) ? ` · Meet ${TEAMS[t.other].name}` : "") + ` · ${eyebrow}`;
+  }
   const kids = [
-    el("div", { class: "eyebrow", text: rec ? "Completed" : "Not done yet" }),
+    el("div", { class: "eyebrow", text: eyebrow }),
     el("h2", { text: p[0] }),
     el("div", { class: "addr", text: p[1] || "Address not on map" })
   ];
@@ -930,9 +1060,17 @@ function hideSplash() {
 }
 function showSplash(pubName) {
   const n = Object.keys(state.done).length;
-  const all = n >= PUBS.length;
-  document.getElementById("splashtitle").textContent = all ? "Crawl complete" : "Pub complete";
+  let all = n >= PUBS.length;
+  let title = all ? "Crawl complete" : "Pub complete";
   let sub = `${pubName} · +1 pint · ${n} / ${PUBS.length}`;
+  const step = teamStep(selected);
+  if (step >= 0) {
+    const t = TEAMS[activeTeam];
+    const tn = t.route.filter(i => state.done[i]).length;
+    if (tn >= t.route.length) { title = "Route complete"; all = true; }
+    sub = `${pubName} · Pub ${step + 1} of ${t.route.length} · ${tn} / ${t.route.length} done`;
+  }
+  document.getElementById("splashtitle").textContent = title;
   if (STAR_AT.includes(n)) sub += ` · Drunk level ${"★".repeat(drunkLevel(n))}`;
   document.getElementById("splashsub").textContent = sub;
   const s = document.getElementById("splash");
@@ -1047,20 +1185,82 @@ function closeMenu() {
   menuEl.hidden = true;
   document.body.classList.remove("menu-open");
 }
-document.getElementById("menustart").addEventListener("click", () => {
+// ---------- team screen: pick Team Slav or Team Chav, see the route, then go ----------
+const teamsEl = document.getElementById("teams");
+const teamPick = document.getElementById("teampick");
+const teamView = document.getElementById("teamview");
+function showTeams(key) {
+  menuEl.hidden = true;
+  teamsEl.hidden = false;
+  document.body.classList.add("menu-open");
+  teamPick.hidden = !!key;
+  teamView.hidden = !key;
+  if (key) renderTeamView(key);
+  teamsEl.scrollTop = 0;
+}
+function renderTeamView(key) {
+  const t = TEAMS[key], other = TEAMS[t.other];
+  document.getElementById("tvnum").textContent = "Team " + t.n;
+  document.getElementById("tvname").textContent = t.name;
+  document.getElementById("tvwelcome").textContent = t.welcome;
+  const go = document.getElementById("tvgo");
+  go.className = "mbtn team-" + key;
+  const list = document.getElementById("tvroute");
+  list.style.setProperty("--tc", t.color);
+  list.replaceChildren(...t.route.map((i, step) => {
+    const p = PUBS[i], cross = CROSS_STEPS.includes(step), done = !!state.done[i];
+    const info = [el("div", { class: "nm", text: p[0] })];
+    if (p[1]) info.push(el("div", { class: "st", text: p[1] }));
+    if (cross) info.push(el("div", { class: "meet", text: "Meet " + other.name + " here" }));
+    return el("li", { class: (cross ? "cross " : "") + (done ? "done" : "") }, [
+      el("span", { class: "num", text: String(step + 1) }),
+      el("div", {}, info),
+      el("span", { class: "tick", text: done ? "✓" : "", "aria-label": done ? "Done" : "Not done" })
+    ]);
+  }));
+}
+// Start crawl: straight to your team's route if this phone already picked one.
+document.getElementById("menustart").addEventListener("click", () => showTeams(state.team || null));
+teamPick.querySelectorAll("[data-team]").forEach(b => b.addEventListener("click", () => {
+  state.team = b.dataset.team;
+  save();
+  showTeams(state.team);
+}));
+document.getElementById("tvswitch").addEventListener("click", () => showTeams(null));
+document.getElementById("teamsback").addEventListener("click", () => { teamsEl.hidden = true; openMenu(); });
+document.getElementById("tvgo").addEventListener("click", () => {
+  teamsEl.hidden = true;
   closeMenu();
-  endIntro();  // the intro video is the intro now, so no 3D flyover here
-  enterFull(); // straight onto the map, full screen
+  endIntro(); // the intro video is the intro now, so no 3D flyover here
+  activeTeam = state.team;
+  drawRoute();
+  refreshPins();
+  renderSheet();
+  // centre the map on the route
+  const c = new THREE.Vector3();
+  TEAMS[activeTeam].route.forEach(i => c.add(pins[i].g.position));
+  c.divideScalar(TEAMS[activeTeam].route.length).setY(0);
+  flyTo(c);
+  enterFull(); // straight onto the map, full screen (must stay inside the tap)
 });
-// Free Roam: straight onto the map, no intro.
-document.getElementById("menufind").addEventListener("click", () => { closeMenu(); endIntro(); });
+// Free Roam: straight onto the map, no intro, every pub and no team route.
+document.getElementById("menufind").addEventListener("click", () => {
+  closeMenu();
+  endIntro();
+  activeTeam = null;
+  drawRoute();
+  refreshPins();
+  renderSheet();
+});
 
 // Countdown on Start crawl to the start of 4 December, Prague time (CET, UTC+1).
 const CRAWL_AT = new Date("2026-12-04T00:00:00+01:00").getTime();
 const countEl = document.getElementById("countdown");
+// Adding ?unlock to the link opens Start crawl early, for testing.
+const UNLOCK = new URLSearchParams(location.search).has("unlock");
 function tickCountdown() {
   const s = Math.floor((CRAWL_AT - Date.now()) / 1000);
-  if (s <= 0) {
+  if (s <= 0 || UNLOCK) {
     // Crawl day: hide the countdown and unlock Start crawl.
     document.getElementById("countwrap").hidden = true;
     const start = document.getElementById("menustart");
